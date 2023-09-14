@@ -3,7 +3,7 @@ const express = require('express');
 const middlewares = require('./middlewares');
 const errorHandlers = require('./utils/errorHandler.util');
 
-if (!process.env.NODE_ENV) {
+if (!process.env.APP_ENV) {
   // Loads .env file contents into process.env.
   require('dotenv').config();
 }
