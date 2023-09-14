@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import loginImage from '../../assets/images/login.svg';
 import { Link } from 'react-router-dom';
 
-import { useDispatch } from 'react-redux';
-import { login } from '../../store/actions/auth';
+// import { useDispatch } from 'react-redux';
+// import { login } from '../../store/actions/auth';
 
 import './Auth.scss';
 
 const Login = ({ history }) => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const [email, setEmail] = useState('sam.smith@gmail.com');
   const [password, setPassword] = useState('secret');
@@ -16,7 +16,7 @@ const Login = ({ history }) => {
   const submitForm = (e) => {
     e.preventDefault();
 
-    dispatch(login({ email, password }, history));
+    // dispatch(login({ email, password }, history));
   };
 
   return (
@@ -55,7 +55,7 @@ const Login = ({ history }) => {
             </form>
 
             <p>
-              Don't have an account? <Link to="/register">Register</Link>
+              New around here? <Link to="/register">Register</Link>
             </p>
           </div>
         </div>
