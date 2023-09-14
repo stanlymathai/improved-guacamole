@@ -18,4 +18,7 @@ const app = express();
 middlewares(app); // Set up basic middlewares
 errorHandlers(app); // Central error handling
 
+// Routes
+app.use(process.env.API_ENDPOINT + '/', require('./routes'));
+
 module.exports = app;
