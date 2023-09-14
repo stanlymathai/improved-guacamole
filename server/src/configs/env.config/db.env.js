@@ -1,8 +1,10 @@
 module.exports = {
   db_name: process.env.DB_NAME,
   db_host: process.env.DB_HOST,
-  db_port: process.env.DB_PORT,
-  db_user: process.env.DB_USER,
-  db_dialect: process.env.DB_DIALECT,
+
+  db_username: process.env.DB_USERNAME,
   db_password: process.env.DB_PASSWORD,
+
+  db_socket_timeout: process.env.DB_SOCKET_TIMEOUT,
+  db_connection_timeout: process.env.DB_CONNECTION_TIMEOUT,
 };
