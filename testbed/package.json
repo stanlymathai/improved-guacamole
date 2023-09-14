@@ -1,0 +1,11 @@
+{
+  "name": "testbed",
+  "version": "1.0.0",
+  "description": "a platform for conducting rigorous, transparent, and replicable testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "infinexpartners",
+  "license": "ISC"
+}
