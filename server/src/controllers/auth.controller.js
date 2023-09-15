@@ -2,25 +2,41 @@ const USER = require('../models/user.model');
 
 function register(req, res) {
   const payload = req.body;
-  console.log('payload knri', payload);
   try {
     const user = new USER(payload);
-    user.save().then((result) => res.json({ result, payload }));
+    user.save().then((result) => {
+      const responseData = {
+        user: {
+          firstName: result.firstName,
+          lastName: result.lastName,
+          email: result.email,
+        },
+        token: '123456789', // Generate a token here
+      };
+      res.json(responseData);
+    });
   } catch (error) {
-    console.log('error knri', error);
+    console.log('error register', error);
     res.status(500).json({ error });
   }
 }
 
 function login(req, res) {
   const payload = req.body;
-  console.log('payload knri', payload);
+
   try {
     USER.findOne({ email: payload.email }).then((result) => {
       if (result) {
-        console.log('result knri', result)
         if (result.password === payload.password) {
-          res.json({ result, payload });
+          const responseData = {
+            user: {
+              firstName: result.firstName,
+              lastName: result.lastName,
+              email: result.email,
+            },
+            token: '123456789', // Generate a token here
+          };
+          res.json(responseData);
         } else {
           res.status(403).json({ message: 'Wrong password' });
         }

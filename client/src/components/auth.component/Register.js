@@ -1,25 +1,32 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { register } from '../../store/actions.store/auth.action';
 import registerImage from '../../assets/images/register.svg';
-import { Link } from 'react-router-dom';
-// import { useDispatch } from 'react-redux';
-// import { register } from '../../store/actions/auth';
 import './Auth.scss';
 
-const Register = ({ history }) => {
-  //   const dispatch = useDispatch();
+const Register = ({ setMode }) => {
+  const dispatch = useDispatch();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
   const [gender, setGender] = useState('male');
+
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const submitForm = (e) => {
     e.preventDefault();
 
-    // dispatch(
-    //   register({ firstName, lastName, email, gender, password }, history)
-    // );
+    const payload = {
+      firstName,
+      lastName,
+      email,
+      gender,
+      password,
+    };
+
+    dispatch(register(payload, setMode));
   };
 
   return (
@@ -59,7 +66,7 @@ const Register = ({ history }) => {
                   onChange={(e) => setEmail(e.target.value)}
                   value={email}
                   required="required"
-                  type="text"
+                  type="email"
                   placeholder="Email"
                 />
               </div>
@@ -87,11 +94,14 @@ const Register = ({ history }) => {
                 />
               </div>
 
-              <button>REGISTER</button>
+              <button type="submit">REGISTER</button>
             </form>
 
             <p>
-              Already have an account? <Link to="/login">Login</Link>
+              Already have an account?{' '}
+              <button type="button" onClick={() => setMode('login')}>
+                Login
+              </button>
             </p>
           </div>
         </div>

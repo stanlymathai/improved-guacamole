@@ -11,6 +11,7 @@ async function handle_request(url, data, headers) {
   try {
     const { data: _data } = await HTTP.post(url, data, headers);
     set_headers_and_storage(_data);
+    console.log('_data knri handle_request', _data);
     return _data;
   } catch (err) {
     console.log('Auth service err', err);

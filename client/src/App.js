@@ -1,24 +1,21 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
 
-import Layout from './components/layout.component/Layout';
 import Login from './components/auth.component/Login';
 import Register from './components/auth.component/Register';
+
+import Chatboard from './components/chatboard.component';
 
 import './App.scss';
 
 function App() {
+  const [mode, setMode] = useState('login'); // login, register, chatboard
+
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route exact path="/" element={<Layout />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route render={() => <h1>404 page not found</h1>} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="App">
+      {mode === 'login' && <Login setMode={setMode} />}
+      {mode === 'register' && <Register setMode={setMode} />}
+      {mode === 'chatboard' && <Chatboard setMode={setMode} />}
+    </div>
   );
 }
 

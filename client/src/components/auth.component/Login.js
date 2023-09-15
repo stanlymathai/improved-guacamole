@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import loginImage from '../../assets/images/login.svg';
-import { Link } from 'react-router-dom';
 
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/actions.store/auth.action';
 
 import './Auth.scss';
 
-const Login = ({ history }) => {
+const Login = ({ setMode }) => {
   const dispatch = useDispatch();
 
   const [email, setEmail] = useState('lainok@altes.com');
-  const [password, setPassword] = useState('secred');
+  const [password, setPassword] = useState('sacred');
 
   const submitForm = (e) => {
     e.preventDefault();
-    dispatch(login({ email, password }, history));
+    dispatch(login({ email, password }, setMode));
   };
 
   return (
@@ -54,7 +53,10 @@ const Login = ({ history }) => {
             </form>
 
             <p>
-              New around here? <Link to="/register">Register</Link>
+              New around here?{' '}
+              <button type="button" onClick={() => setMode('register')}>
+                Register
+              </button>
             </p>
           </div>
         </div>
