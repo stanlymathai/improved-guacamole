@@ -72,6 +72,8 @@ const Register = ({ history }) => {
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
+                  <option value="non-binary">non-binary</option>
+                  <option value="prefer not to say">prefer not to say</option>
                 </select>
               </div>
 

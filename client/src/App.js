@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 
-import Chat from './components/layout.component/Chat';
+import Layout from './components/layout.component/Layout';
 import Login from './components/auth.component/Login';
 import Register from './components/auth.component/Register';
 
@@ -12,7 +12,7 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route exact path="/" element={<Chat />} />
+          <Route exact path="/" element={<Layout />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route render={() => <h1>404 page not found</h1>} />
