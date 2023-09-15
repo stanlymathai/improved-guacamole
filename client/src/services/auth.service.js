@@ -7,7 +7,7 @@ function set_headers_and_storage({ user, token }) {
   return;
 }
 
-async function handle_auth_request(url, data, headers) {
+async function handle_request(url, data, headers) {
   try {
     const { data: _data } = await HTTP.post(url, data, headers);
     set_headers_and_storage(_data);
@@ -19,12 +19,12 @@ async function handle_auth_request(url, data, headers) {
 }
 
 const auth_service = {
-  login: (data) => handle_auth_request('/login', data),
+  login: (data) => handle_request('/login', data),
 
-  register: (data) => handle_auth_request('/register', data),
+  register: (data) => handle_request('/register', data),
 
   update_profile: (data) =>
-    handle_auth_request('/users/update', data, {
+    handle_request('/users/update', data, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     }),
 

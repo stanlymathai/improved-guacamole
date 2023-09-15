@@ -2,21 +2,20 @@ import React, { useState } from 'react';
 import loginImage from '../../assets/images/login.svg';
 import { Link } from 'react-router-dom';
 
-// import { useDispatch } from 'react-redux';
-// import { login } from '../../store/actions/auth';
+import { useDispatch } from 'react-redux';
+import { login } from '../../store/actions.store/auth.action';
 
 import './Auth.scss';
 
 const Login = ({ history }) => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  const [email, setEmail] = useState('sam.smith@gmail.com');
-  const [password, setPassword] = useState('secret');
+  const [email, setEmail] = useState('lainok@altes.com');
+  const [password, setPassword] = useState('secred');
 
   const submitForm = (e) => {
     e.preventDefault();
-
-    // dispatch(login({ email, password }, history));
+    dispatch(login({ email, password }, history));
   };
 
   return (
@@ -51,7 +50,7 @@ const Login = ({ history }) => {
                 />
               </div>
 
-              <button>LOGIN</button>
+              <button type="submit">LOGIN</button>
             </form>
 
             <p>

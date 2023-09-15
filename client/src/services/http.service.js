@@ -3,10 +3,10 @@ import axios from 'axios';
 // import { logout } from '../store/actions/auth';
 
 const HTTP = axios.create({
-  baseURL: 'http://127.0.0.1:8080',
+  baseURL: 'http://127.0.0.1:8080/api/v1',
   headers: {
     Accept: 'application/json',
-    Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+    // Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
   },
 });
 
