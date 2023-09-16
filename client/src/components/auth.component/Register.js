@@ -80,7 +80,7 @@ const Register = ({ setMode }) => {
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="non-binary">non-binary</option>
-                  <option value="prefer not to say">prefer not to say</option>
+                  <option value="not-specified">prefer not to say</option>
                 </select>
               </div>
 

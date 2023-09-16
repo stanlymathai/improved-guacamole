@@ -33,11 +33,23 @@ const userSchema = new mongoose.Schema({
   gender: {
     type: String,
     required: true,
-    enum: ['male', 'female', 'non-binary', 'prefer not to say'],
+    enum: ['male', 'female', 'non-binary', 'not-specified'],
   },
   avatar: {
     type: String,
   },
+  secretOrKey: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  status: {
+    type: String,
+    required: true,
+  },
+
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('User', userSchema);

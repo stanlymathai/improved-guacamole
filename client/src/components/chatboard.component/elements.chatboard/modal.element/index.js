@@ -6,8 +6,10 @@ const Modal = (props) => {
     props.children.find((child) => child.key === name);
 
   const closeModal = (e) => {
+    e.stopPropagation();
+
     if (e.target.classList.contains('modal-close')) {
-      props.onClose();
+      return props.click();
     }
   };
 

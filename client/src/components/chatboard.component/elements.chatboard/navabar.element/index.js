@@ -30,13 +30,13 @@ const Navbar = () => {
   const submitForm = (e) => {
     e.preventDefault();
 
-    const form = { firstName, lastName, email, gender, avatar };
-    if (password.length > 0) form.password = password;
+    const _formData = { firstName, lastName, email, gender, avatar };
+    if (password.length > 0) _formData.password = password;
 
     const formData = new FormData();
 
-    for (const key in form) {
-      formData.append(key, form[key]);
+    for (const key in _formData) {
+      formData.append(key, _formData[key]);
     }
 
     dispatch(update_profile(formData)).then(() => setShowProfileModal(false));
@@ -81,8 +81,8 @@ const Navbar = () => {
                     onChange={(e) => setFirstName(e.target.value)}
                     value={firstName}
                     required="required"
-                    type="text"
                     placeholder="First name"
+                    type="text"
                   />
                 </div>
 
@@ -91,8 +91,8 @@ const Navbar = () => {
                     onChange={(e) => setLastName(e.target.value)}
                     value={lastName}
                     required="required"
-                    type="text"
                     placeholder="Last name"
+                    type="text"
                   />
                 </div>
 
@@ -101,8 +101,8 @@ const Navbar = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}
                     required="required"
-                    type="text"
                     placeholder="Email"
+                    type="email"
                   />
                 </div>
 
@@ -114,6 +114,8 @@ const Navbar = () => {
                   >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
+                    <option value="non-binary">non-binary</option>
+                    <option value="not-specified">prefer not to say</option>
                   </select>
                 </div>
 
