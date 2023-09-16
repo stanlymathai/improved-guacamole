@@ -9,6 +9,7 @@ function register(req, res) {
         user: {
           firstName: result.firstName,
           lastName: result.lastName,
+          gender: result.gender,
           email: result.email,
         },
         token: '123456789', // Generate a token here
@@ -32,6 +33,8 @@ function login(req, res) {
             user: {
               firstName: result.firstName,
               lastName: result.lastName,
+              gender: result.gender,
+              avatar: result.avatar,
               email: result.email,
             },
             token: '123456789', // Generate a token here
