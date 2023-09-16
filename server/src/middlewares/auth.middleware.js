@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const { app_key } = require('../configs/env.config/app.env');
 
 function verify_token(req, res, next) {
-  const token = req.headers.authorization;
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ message: 'Token is required' });
