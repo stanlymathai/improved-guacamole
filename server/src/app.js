@@ -1,6 +1,6 @@
 const express = require('express');
 
-const middlewares = require('./middlewares');
+const middlewares = require('./middlewares/app.middleware');
 const errorHandlers = require('./utils/errorHandler.util');
 
 if (!process.env.APP_ENV) {
