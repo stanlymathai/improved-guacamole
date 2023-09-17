@@ -15,8 +15,8 @@ db.initialize_connection();
 // Creating an Express app.
 const app = express();
 
-middlewares(app); // Set up basic middlewares
-errorHandlers(app); // Central error handling
+middlewares(app);
+errorHandlers(app);
 
 // Routes
 app.use(process.env.API_ENDPOINT + '/', require('./routes'));

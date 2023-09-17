@@ -1,39 +1,55 @@
 import HTTP from './http.service';
 
-function set_headers_and_storage({ user, token }) {
+function set_headers_and_storage(args) {
+  const { user, token } = args;
+
   HTTP.defaults.headers['Authorization'] = `Bearer ${token}`;
   localStorage.setItem('user', JSON.stringify(user));
   localStorage.setItem('token', token);
-  return;
 }
 
-async function handle_request(url, data, headers) {
-  try {
-    const { data: _data } = await HTTP.post(url, data, headers);
-    set_headers_and_storage(_data);
-    console.log('_data knri handle_request', _data);
-    return _data;
-  } catch (err) {
-    console.log('Auth service err', err);
-    throw err;
-  }
-}
+const authService = {
+  login: async (data) => {
+    try {
+      const { data: _data } = await HTTP.post('/login', data);
+      set_headers_and_storage(_data);
+      return _data;
+    } catch (err) {
+      console.log('Auth service err', err);
+      throw err;
+    }
+  },
 
-const auth_service = {
-  login: (data) => handle_request('/login', data),
-
-  register: (data) => handle_request('/register', data),
-
-  update_profile: (data) =>
-    handle_request('/users/update', data, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    }),
+  register: async (data) => {
+    try {
+      const { data: _data } = await HTTP.post('/register', data);
+      set_headers_and_storage(_data);
+      return _data;
+    } catch (err) {
+      console.log('Auth service err', err);
+      throw err;
+    }
+  },
 
   logout: () => {
     HTTP.defaults.headers['Authorization'] = '';
     localStorage.removeItem('user');
     localStorage.removeItem('token');
   },
+
+  updateProfile: async (data) => {
+    const headers = {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    };
+    try {
+      const { data: _data } = await HTTP.post('/users/update', data, headers);
+      localStorage.setItem('user', JSON.stringify(_data));
+      return _data;
+    } catch (err) {
+      console.log('Auth service err', err);
+      throw err;
+    }
+  },
 };
 
-export default auth_service;
+export default authService;

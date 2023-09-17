@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   logout,
-  update_profile,
+  updateProfile,
 } from '../../../../store/actions.store/auth.action';
 
 import Modal from '../modal.element';
@@ -39,7 +39,7 @@ const Navbar = () => {
       formData.append(key, _formData[key]);
     }
 
-    dispatch(update_profile(formData)).then(() => setShowProfileModal(false));
+    dispatch(updateProfile(formData)).then(() => setShowProfileModal(false));
   };
 
   const imgSrc = user.avatar

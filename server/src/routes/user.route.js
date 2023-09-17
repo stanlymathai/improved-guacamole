@@ -1,8 +1,9 @@
 const router = require('express').Router();
-const controller = require('../controllers/user.controller');
+const ctrl = require('../controllers/user.controller');
 const verify_token = require('../middlewares/auth.middleware');
+const { user_file } = require('../middlewares/storage.middleware');
 
-router.get('/', controller.get_users);
-router.post('/update', [verify_token], controller.update_user);
+router.get('/', ctrl.get_users);
+router.post('/update', [verify_token, user_file], ctrl.update_user);
 
 module.exports = router;

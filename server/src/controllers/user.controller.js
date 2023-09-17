@@ -8,14 +8,20 @@ function get_users(req, res) {
 
 function update_user(req, res) {
   const payload = req.body;
-  console.log('payload knri', payload);
+  payload.updatedAt = new Date();
 
-  return res.status(200).send('request received');
-  const id = req.params.id;
+  if (req.file) {
+    payload.avatar = req.file.filename;
+  }
 
-  USER.findByIdAndUpdate(id, payload).then((result) => {
-    res.json(result);
-  });
+  if (typeof payload.avatar !== 'undefined' && payload.avatar.length === 0)
+    delete payload.avatar;
+
+  const { secretOrKey } = req.user;
+
+  USER.updateOne({ secretOrKey }, payload)
+    .then((result) => res.json(result))
+    .catch((e) => res.status(500).json({ error: e }));
 }
 
 module.exports = {

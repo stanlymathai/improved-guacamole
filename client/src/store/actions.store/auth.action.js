@@ -30,9 +30,9 @@ export const logout = () => async (dispatch) => {
   }
 };
 
-export const update_profile = (params) => async (dispatch) => {
+export const updateProfile = (params) => async (dispatch) => {
   try {
-    const _data = await authService.update_profile(params);
+    const _data = await authService.updateProfile(params);
     dispatch({ type: types.UPDATE_PROFILE, payload: _data });
   } catch (err) {
     console.error('Update profile error:', err);
