@@ -1,7 +1,7 @@
-const USER = require('../models/user.model');
-
 const { v4: uuidv4 } = require('uuid');
-const generate_token = require('../helpers/generate_token.helper');
+
+const USER = require('../models/user.model');
+const generate_token = require('../helpers/generateToken.helper');
 
 function register(req, res) {
   const payload = req.body;
@@ -18,6 +18,7 @@ function register(req, res) {
 
   try {
     const user = new USER(userData);
+
     user.save().then((_doc) => {
       const responseData = {
         user: {

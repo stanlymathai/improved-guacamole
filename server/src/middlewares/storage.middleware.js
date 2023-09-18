@@ -1,6 +1,7 @@
 const multer = require('multer');
 const fs = require('fs');
-const path = require('path');
+
+const USER_FILE_PATH = 'uploads/user/';
 
 const getFileType = (file) => {
   const mimeType = file.mimetype.split('/');
@@ -29,32 +30,9 @@ const fileFilter = (req, file, cb) => {
   return cb(null, false);
 };
 
-exports.user_file = ((req, res, next) => {
+exports.userFile = (() => {
   const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      const id = req.user.secretOrKey;
-      const dest = `uploads/user/${id}`;
-
-      fs.access(dest, (error) => {
-        if (error) {
-          return fs.mkdir(dest, (error) => {
-            cb(error, dest);
-          });
-        }
-
-        fs.readdir(dest, (error, files) => {
-          if (error) throw error;
-
-          for (const file of files) {
-            fs.unlink(path.join(dest, file), (error) => {
-              if (error) throw error;
-            });
-          }
-        });
-
-        return cb(null, dest);
-      });
-    },
+    destination: USER_FILE_PATH,
     filename: generateFileName,
   });
 
