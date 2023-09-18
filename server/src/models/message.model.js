@@ -19,11 +19,11 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    status: {
-      type: String,
-      required: true,
-      enum: ['SENT', 'DELIVERED', 'READ'],
-    },
+    // status: {
+    //   type: String,
+    //   required: true,
+    //   enum: ['SENT', 'DELIVERED', 'READ'],
+    // },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

@@ -10,11 +10,12 @@ const chatUserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    status: {
-      type: String,
-      required: true,
-      enum: ['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING'],
-    },
+    // status: {
+    //   type: String,
+    //   required: true,
+    //   enum: ['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING'],
+    // },
+
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

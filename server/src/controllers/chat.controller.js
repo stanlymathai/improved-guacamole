@@ -81,17 +81,6 @@ async function get_chats(req, res) {
   }
 }
 
-async function add_init_chat(req, res) {
-  const users = await USER.find({}, { limit: 2 });
-
-  const chat = await CHAT.create({});
-
-  console.log('users knri', users);
-  console.log('chat knri', chat);
-
-  res.status(200).json({ users, chat });
-}
 module.exports = {
   get_chats,
-  add_init_chat,
 };
