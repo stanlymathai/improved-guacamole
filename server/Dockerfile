@@ -59,9 +59,6 @@ ENV AWS_SECRET_ACCESS_KEY ${AWS_SECRET_ACCESS_KEY}
 ARG AWS_BUCKET_NAME
 ENV AWS_BUCKET_NAME ${AWS_BUCKET_NAME}
 
-ARG AWS_CLOUDFRONT_URL
-ENV AWS_CLOUDFRONT_URL ${AWS_CLOUDFRONT_URL}
-
 
 # Copy node_modules from build stage
 COPY --from=build /usr/src/app/node_modules ./node_modules

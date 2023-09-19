@@ -32,7 +32,7 @@ async function update_user(req, res) {
     });
 
     if (s3Upload.error) {
-      return res.status(500).json({ error: response.error });
+      return res.status(500).json({ error: s3Upload.error });
     }
 
     if (s3Upload.$metadata.httpStatusCode === 200) {
