@@ -6,15 +6,15 @@ const { PutObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 
 const {
   aws_region,
-  aws_access_key,
-  aws_secret_key,
+  aws_access_key_id,
+  aws_secret_access_key,
 
   aws_bucket_name,
 } = config;
 
 const CLIENT = new S3Client({
-  accessKeyId: aws_access_key,
-  secretAccessKey: aws_secret_key,
+  accessKeyId: aws_access_key_id,
+  secretAccessKey: aws_secret_access_key,
   region: aws_region,
 });
 

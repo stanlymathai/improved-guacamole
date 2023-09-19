@@ -3,7 +3,8 @@ import store from '../store';
 import { logout } from '../store/actions.store/auth.action';
 
 const HTTP = axios.create({
-  baseURL: 'http://127.0.0.1:8080/api/v1',
+  baseURL: 'http://127.0.0.1:8080/api/v1', // local
+  // baseURL: 'https://dev.social-msg.monitalks.io/api/v1', // production
   headers: {
     Accept: 'application/json',
     Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
