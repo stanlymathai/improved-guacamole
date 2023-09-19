@@ -17,3 +17,7 @@ export const fetchChats = () => async (dispatch) => {
     throw err;
   }
 };
+
+export const setCurrentChat = (chat) => (dispatch) => {
+  dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
+};

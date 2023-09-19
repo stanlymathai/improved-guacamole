@@ -1,5 +1,6 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { setCurrentChat } from '../../../../store/actions.store/chat.action';
 
 import Friend from '../friend.element';
 
@@ -10,11 +11,11 @@ const FriendList = () => {
   const chats = useSelector((state) => state.chat.chats);
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
 
   // handler fn's
   const openChat = (chat) => {
     console.log(chat, 'chat open handler');
+    dispatch(setCurrentChat(chat));
   };
 
   return (

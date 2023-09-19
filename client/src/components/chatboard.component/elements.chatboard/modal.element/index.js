@@ -1,5 +1,5 @@
 import React from 'react';
-import './Modal.scss';
+import './modal.scss';
 
 const Modal = (props) => {
   const findByKey = (name) =>

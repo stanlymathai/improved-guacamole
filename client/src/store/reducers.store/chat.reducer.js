@@ -19,6 +19,14 @@ const chatReducer = (state = initialState, action) => {
         chats: payload,
       };
 
+    case actionTypes.SET_CURRENT_CHAT:
+      return {
+        ...state,
+        currentChat: payload,
+        scrollBottom: state.scrollBottom + 1,
+        newMessage: { chatId: null, seen: null },
+      };
+
     default: {
       return state;
     }
