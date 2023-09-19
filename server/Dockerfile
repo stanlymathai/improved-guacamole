@@ -66,10 +66,11 @@ COPY --from=build /usr/src/app/node_modules ./node_modules
 # Copy the rest of the application code
 COPY . .
 
-# RUN chmod +x ./uploads
+# Access to upload files folder for user node
+RUN chown node:node ./uploads && chmod 755 ./uploads
 
-# # Run as non-root user for security
-# USER node
+# Run as non-root user for security
+USER node
 
 # Expose the port the app runs on
 EXPOSE 8080
