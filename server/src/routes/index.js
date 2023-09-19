@@ -1,7 +1,13 @@
 const router = require('express').Router();
 
 router.get('/health', (_, res) => {
-  return res.status(200).send('As Strong as an Ox!');
+  const _process = process.env;
+  return res.status(200).json({
+    status: 'UP',
+    process: _process,
+  });
+
+  // return res.status(200).send('As Strong as an Ox!');
 });
 
 router.use('/', require('./auth.route'));

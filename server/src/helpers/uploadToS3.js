@@ -10,7 +10,6 @@ const {
   aws_secret_access_key,
 
   aws_bucket_name,
-  aws_cloudfront_url,
 } = config;
 
 const CLIENT = new S3Client({
@@ -25,18 +24,17 @@ async function upload_to_s3(payload) {
     return { error: 'File name or path is missing' };
   }
 
-  const bucketName = aws_bucket_name;
   const fileData = fs.readFileSync(filePath);
 
   const command = new PutObjectCommand({
-    Bucket: bucketName,
+    Bucket: aws_bucket_name,
     Key: fileName,
     Body: fileData,
   });
 
   try {
     const data = await CLIENT.send(command);
-    data.upload = `${aws_cloudfront_url}/${fileName}`;
+    data.upload = `https://${aws_bucket_name}.s3.${aws_region}.amazonaws.com/${fileName}`;
     return data;
   } catch (error) {
     console.error(error, 'Error uploading file.');

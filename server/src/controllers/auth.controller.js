@@ -16,10 +16,11 @@ function register(req, res) {
     status: 'ACTIVE',
   };
 
-  try {
-    const user = new USER(userData);
+  const user = new USER(userData);
 
-    user.save().then((_doc) => {
+  user
+    .save()
+    .then((_doc) => {
       const responseData = {
         user: {
           firstName: _doc.firstName,
@@ -30,18 +31,18 @@ function register(req, res) {
         token: generate_token({ secretOrKey: _doc.secretOrKey }),
       };
       res.json(responseData);
+    })
+    .catch((error) => {
+      console.log('error register', error);
+      res.status(500).json({ error });
     });
-  } catch (error) {
-    console.log('error register', error);
-    res.status(500).json({ error });
-  }
 }
 
 function login(req, res) {
   const payload = req.body;
 
-  try {
-    USER.findOne({ email: payload.email }).then((_doc) => {
+  USER.findOne({ email: payload.email })
+    .then((_doc) => {
       if (_doc) {
         if (_doc.password === payload.password) {
           const responseData = {
@@ -54,17 +55,18 @@ function login(req, res) {
             },
             token: generate_token({ secretOrKey: _doc.secretOrKey }),
           };
-          res.json(responseData);
+          res.status(200).json(responseData);
         } else {
           res.status(403).json({ message: 'Wrong password' });
         }
       } else {
         res.status(403).json({ message: 'User not found' });
       }
+    })
+    .catch((error) => {
+      console.log('error login', error);
+      res.status(500).json({ error });
     });
-  } catch (error) {
-    res.status(500).json({ error });
-  }
 }
 
 module.exports = {
