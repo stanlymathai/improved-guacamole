@@ -66,8 +66,9 @@ COPY --from=build /usr/src/app/node_modules ./node_modules
 # Copy the rest of the application code
 COPY . .
 
-# Access to upload files folder for user node
-RUN chown node:node ./uploads && chmod 755 ./uploads
+
+# Change ownership and permissions for the uploads directory and its content
+RUN chown -R node:node ./uploads && chmod -R 755 ./uploads
 
 # Run as non-root user for security
 USER node
