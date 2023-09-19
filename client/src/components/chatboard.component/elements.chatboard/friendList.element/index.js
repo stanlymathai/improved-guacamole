@@ -1,6 +1,8 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import Friend from '../friend.element';
+
 import './friendList.scss';
 
 const FriendList = () => {
@@ -9,6 +11,11 @@ const FriendList = () => {
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+
+  // handler fn's
+  const openChat = (chat) => {
+    console.log(chat, 'chat open handler');
+  };
 
   return (
     <div id="friends" className="shadow-light">
@@ -23,8 +30,7 @@ const FriendList = () => {
         {chats.length > 0 ? (
           chats.map((chat) => {
             return (
-              // <Friend click={() => openChat(chat)} chat={chat} key={chat.id} />
-              <h1>Friend</h1>
+              <Friend click={() => openChat(chat)} chat={chat} key={chat._id} />
             );
           })
         ) : (
