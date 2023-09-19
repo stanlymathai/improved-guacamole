@@ -1,94 +1,96 @@
 import HTTP from './http.service';
 
-async function handle_request(requestFn, endpoint, data, params, functionName) {
-  try {
-    const { data: _data } = await requestFn(endpoint, data, params);
-    return _data;
-  } catch (err) {
-    throw new Error(`Error in ${functionName}: ${err.message}`);
-  }
-}
-
-const chat_service = {
-  fetch_chats: async () => {
-    return handle_request(HTTP.get, '/chats', null, null, 'fetch_chats');
+const chatService = {
+  fetchChats: async () => {
+    try {
+      const { data } = await HTTP.get('/chats');
+      return data;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  upload_image: async (data) => {
-    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-    return handle_request(
-      HTTP.post,
-      '/chats/upload-image',
-      data,
-      { headers },
-      'upload_image'
-    );
+  uploadImage: (data) => {
+    const headers = {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    };
+    return HTTP.post('/chats/upload-image', data, headers)
+      .then(({ data }) => {
+        return data.url;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 
-  paginate_messages: async (id, page) => {
-    const params = { id, page };
-    return handle_request(
-      HTTP.get,
-      '/chats/messages',
-      null,
-      { params },
-      'paginate_messages'
-    );
+  paginateMessages: (id, page) => {
+    return HTTP.get('/chats/messages', {
+      params: {
+        id,
+        page,
+      },
+    })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 
-  search_users: async (term) => {
-    const params = { term };
-    return handle_request(
-      HTTP.get,
-      '/users/search-users',
-      null,
-      { params },
-      'search_users'
-    );
+  searchUsers: (term) => {
+    return HTTP.get('/users/search-users', {
+      params: {
+        term,
+      },
+    })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 
-  create_chat: async (partnerId) => {
-    const data = { partnerId };
-    return handle_request(
-      HTTP.post,
-      '/chats/create',
-      data,
-      null,
-      'create_chat'
-    );
+  createChat: (partnerId) => {
+    return HTTP.post('/chats/create', { partnerId })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 
-  add_user_to_group_chat: async (userId, chatId) => {
-    const data = { userId, chatId };
-    return handle_request(
-      HTTP.post,
-      '/chats/add-user-to-group',
-      data,
-      null,
-      'add_user_to_group_chat'
-    );
+  addFriendToGroupChat: (userId, chatId) => {
+    return HTTP.post('/chats/add-user-to-group', { userId, chatId })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 
-  leave_current_chat: async (chatId) => {
-    const data = { chatId };
-    return handle_request(
-      HTTP.post,
-      '/chats/leave-current-chat',
-      data,
-      null,
-      'leave_current_chat'
-    );
+  leaveCurrentChat: (chatId) => {
+    return HTTP.post('/chats/leave-current-chat', { chatId })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 
-  delete_current_chat: async (chatId) => {
-    return handle_request(
-      HTTP.delete,
-      `/chats/${chatId}`,
-      null,
-      null,
-      'delete_current_chat'
-    );
+  deleteCurrentChat: (chatId) => {
+    return HTTP.delete(`/chats/${chatId}`)
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
   },
 };
 
-export default chat_service;
+export default chatService;

@@ -1,4 +1,4 @@
-import * as ActionTypes from '../types.store/auth.type';
+import * as actionTypes from '../types.store/auth.type';
 
 const initialState = {
   user: {},
@@ -11,14 +11,14 @@ const authReducer = (state = initialState, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case ActionTypes.LOGIN:
+    case actionTypes.LOGIN:
       return {
         ...state,
         user: payload.user,
         token: payload.token,
         isLoggedIn: true,
       };
-    case ActionTypes.REGISTER:
+    case actionTypes.REGISTER:
       return {
         ...state,
         user: payload.user,
@@ -27,7 +27,7 @@ const authReducer = (state = initialState, action) => {
         error: null, // Clear any previous errors
       };
 
-    case ActionTypes.LOGOUT:
+    case actionTypes.LOGOUT:
       return {
         ...state,
         user: {},
@@ -36,7 +36,7 @@ const authReducer = (state = initialState, action) => {
         error: null,
       };
 
-    case ActionTypes.UPDATE_PROFILE:
+    case actionTypes.UPDATE_PROFILE:
       return {
         ...state,
         user: payload,
