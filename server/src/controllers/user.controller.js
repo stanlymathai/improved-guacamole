@@ -1,5 +1,5 @@
 const USER = require('../models/user.model');
-const uploadToS3 = require('../helpers/uploadToS3');
+const pushToS3 = require('../helpers/uploadToS3');
 
 function get_users(req, res) {
   USER.find().then((result) => {
@@ -26,7 +26,7 @@ async function update_user(req, res) {
     req.file.filename &&
     req.file.filename.length > 0
   ) {
-    const s3Upload = await uploadToS3({
+    const s3Upload = await pushToS3({
       fileName: req.file.filename,
       filePath: req.file.path,
     });
