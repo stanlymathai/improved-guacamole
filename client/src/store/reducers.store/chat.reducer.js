@@ -27,6 +27,38 @@ const chatReducer = (state = initialState, action) => {
         newMessage: { chatId: null, seen: null },
       };
 
+    case actionTypes.PAGINATE_MESSAGES: {
+      const { messages, id, pagination } = payload;
+
+      let currentChatCopy = { ...state.currentChat };
+
+      const chatsCopy = state.chats.map((chat) => {
+        if (chat._id === id) {
+          const shifted = [...messages, ...chat.Messages];
+
+          currentChatCopy = {
+            ...currentChatCopy,
+            Messages: shifted,
+            Pagination: pagination,
+          };
+
+          return {
+            ...chat,
+            Messages: shifted,
+            Pagination: pagination,
+          };
+        }
+
+        return chat;
+      });
+
+      return {
+        ...state,
+        chats: chatsCopy,
+        currentChat: currentChatCopy,
+      };
+    }
+
     default: {
       return state;
     }

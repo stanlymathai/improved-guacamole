@@ -21,3 +21,21 @@ export const fetchChats = () => async (dispatch) => {
 export const setCurrentChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };
+
+export const paginateMessages = (id, page) => (dispatch) => {
+  return chatService
+    .paginateMessages(id, page)
+    .then(({ messages, pagination }) => {
+      if (typeof messages !== 'undefined' && messages.length > 0) {
+        messages.reverse();
+        const payload = { messages, id, pagination };
+        dispatch({ type: types.PAGINATE_MESSAGES, payload });
+        return true;
+      }
+
+      return false;
+    })
+    .catch((err) => {
+      throw err;
+    });
+};

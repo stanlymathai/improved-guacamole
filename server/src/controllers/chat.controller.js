@@ -38,7 +38,7 @@ async function fetch(req, res) {
         from: 'messages',
         pipeline: [
           { $sort: { _id: -1 } },
-          { $limit: 20 },
+          { $limit: 10 },
           {
             $lookup: {
               from: 'users',
@@ -159,6 +159,15 @@ async function messages(req, res) {
     { $sort: { _id: -1 } },
 
     { $match: { chatId: new mongoose.Types.ObjectId(chatId) } },
+    {
+      $lookup: {
+        from: 'users',
+        pipeline: [{ $limit: 1 }],
+        localField: 'senderId',
+        foreignField: '_id',
+        as: 'User',
+      },
+    },
 
     {
       $facet: {
@@ -184,6 +193,8 @@ async function messages(req, res) {
       },
     },
   ]);
+
+  if (messages.length === 0) return res.json({ data: { messages: [] } });
 
   const totalPages = Math.ceil(messages[0].count / limit);
 

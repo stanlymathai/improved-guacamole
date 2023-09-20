@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Message from '../message.element';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { paginateMessages } from '../../../../store/actions.store/chat.action';
 import './messageBox.scss';
 
 const MessageBox = ({ chat }) => {
@@ -20,7 +22,22 @@ const MessageBox = ({ chat }) => {
   };
 
   const handleInfiniteScroll = (e) => {
-    console.log('scrolling', e);
+    if (e.target.scrollTop === 0) {
+      setLoading(true);
+      const pagination = chat.Pagination;
+      const page = typeof pagination === 'undefined' ? 1 : pagination.page;
+
+      dispatch(paginateMessages(chat._id, parseInt(page) + 1))
+        .then((res) => {
+          if (res) {
+            setScrollUp(scrollUp + 1);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          setLoading(false);
+        });
+    }
   };
 
   useEffect(() => {

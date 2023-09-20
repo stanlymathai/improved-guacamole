@@ -23,19 +23,18 @@ const chatService = {
       });
   },
 
-  paginateMessages: (id, page) => {
-    return HTTP.get('/chats/messages', {
-      params: {
-        id,
-        page,
-      },
-    })
-      .then(({ data }) => {
-        return data;
-      })
-      .catch((err) => {
-        throw err;
+  paginateMessages: async (id, page) => {
+    try {
+      const { data } = await HTTP.get('/chats/messages', {
+        params: {
+          id,
+          page,
+        },
       });
+      return data;
+    } catch (err) {
+      throw err;
+    }
   },
 
   searchUsers: (term) => {
