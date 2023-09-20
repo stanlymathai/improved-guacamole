@@ -1,4 +1,4 @@
-import * as actionTypes from '../types.store/chat.type';
+import * as types from '../types.store/chat.type';
 
 const initialState = {
   chats: [],
@@ -13,13 +13,13 @@ const chatReducer = (state = initialState, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case actionTypes.FETCH_CHATS:
+    case types.FETCH_CHATS:
       return {
         ...state,
         chats: payload,
       };
 
-    case actionTypes.SET_CURRENT_CHAT:
+    case types.SET_CURRENT_CHAT:
       return {
         ...state,
         currentChat: payload,
@@ -27,7 +27,7 @@ const chatReducer = (state = initialState, action) => {
         newMessage: { chatId: null, seen: null },
       };
 
-    case actionTypes.PAGINATE_MESSAGES: {
+    case types.PAGINATE_MESSAGES: {
       const { messages, id, pagination } = payload;
 
       let currentChatCopy = { ...state.currentChat };
@@ -58,6 +58,13 @@ const chatReducer = (state = initialState, action) => {
         currentChat: currentChatCopy,
       };
     }
+
+    case types.INCREMENT_SCROLL:
+      return {
+        ...state,
+        scrollBottom: state.scrollBottom + 1,
+        newMessage: { chatId: null, seen: true },
+      };
 
     default: {
       return state;

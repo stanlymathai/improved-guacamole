@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { incrementScroll } from '../../../../store/actions.store/chat.action';
+import chatService from '../../../../services/chat.service';
+
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -94,7 +97,7 @@ const MessageInput = ({ chat }) => {
       msgBox.scrollHeight !== msgBox.clientHeight
     ) {
       if (msgBox.scrollTop > msgBox.scrollHeight * 0.3) {
-        // dispatch(incrementScroll());
+        dispatch(incrementScroll());
       } else {
         setShowNewMessageNotification(true);
       }
@@ -104,7 +107,7 @@ const MessageInput = ({ chat }) => {
   }, [newMessage, dispatch]);
 
   const showNewMessage = () => {
-    // dispatch(incrementScroll());
+    dispatch(incrementScroll());
     setShowNewMessageNotification(false);
   };
 

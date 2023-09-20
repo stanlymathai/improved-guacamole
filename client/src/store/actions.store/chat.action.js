@@ -22,6 +22,10 @@ export const setCurrentChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };
 
+export const incrementScroll = () => (dispatch) => {
+  dispatch({ type: types.INCREMENT_SCROLL });
+};
+
 export const paginateMessages = (id, page) => (dispatch) => {
   return chatService
     .paginateMessages(id, page)
