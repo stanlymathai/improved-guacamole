@@ -3,12 +3,15 @@
 const http = require('http');
 
 const app = require('../src/app');
+const socketServer = require('../src/socket');
 const config = require('../src/configs/env.config/app.env');
 
 const port = normalizePort(config.app_port || '3000');
 app.set('port', port);
 
 const server = http.createServer(app);
+
+socketServer(server);
 server.listen(port);
 
 server.on('error', onError);

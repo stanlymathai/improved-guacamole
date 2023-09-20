@@ -1,20 +1,17 @@
-const express = require('express');
-
 const middlewares = require('./middlewares/app.middleware');
 const errorHandlers = require('./utils/errorHandler.util');
 
-if (!process.env.APP_ENV) {
-  // Loads .env file contents into process.env.
-  require('dotenv').config();
-}
+// Loads .env file contents for local development.
+if (!process.env.APP_ENV) require('dotenv').config();
 
 // db connection.
 const db = require('./configs/db.config');
 db.initialize_connection();
 
 // Creating an Express app.
-const app = express();
+const app = require('express')();
 
+// Middlewares
 middlewares(app);
 errorHandlers(app);
 
