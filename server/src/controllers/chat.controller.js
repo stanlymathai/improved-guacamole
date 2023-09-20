@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const CHAT = require('../models/chat.model');
 const USER = require('../models/user.model');
 const CHAT_USER = require('../models/chatUser.model');
+const MESSAGE = require('../models/message.model');
 
 async function fetch(req, res) {
   const { secretOrKey } = req.user;
@@ -37,6 +38,7 @@ async function fetch(req, res) {
         from: 'messages',
         pipeline: [
           { $sort: { _id: -1 } },
+          { $limit: 20 },
           {
             $lookup: {
               from: 'users',
@@ -137,7 +139,69 @@ async function create_chat(req, res) {
     .catch((error) => res.status(500).json({ error }));
 }
 
+async function messages(req, res) {
+  const limit = 10;
+  const page = req.query.page || 1;
+  const offset = page > 1 ? page * limit : 0;
+
+  const chatId = req.query.id;
+
+  const { secretOrKey } = req.user;
+  const _user = await USER.findOne({ secretOrKey }, { _id: 1 });
+  if (!_user) {
+    return res.status(403).json({
+      status: 'Error',
+      message: 'Unauthorized to perform this action.',
+    });
+  }
+
+  const messages = await MESSAGE.aggregate([
+    { $sort: { _id: -1 } },
+
+    { $match: { chatId: new mongoose.Types.ObjectId(chatId) } },
+
+    {
+      $facet: {
+        stage1: [
+          {
+            $group: {
+              _id: null,
+              count: { $sum: 1 },
+            },
+          },
+        ],
+
+        stage2: [{ $skip: offset }, { $limit: limit }],
+      },
+    },
+
+    { $unwind: '$stage1' },
+
+    {
+      $project: {
+        count: '$stage1.count',
+        data: '$stage2',
+      },
+    },
+  ]);
+
+  const totalPages = Math.ceil(messages[0].count / limit);
+
+  if (page > totalPages) return res.json({ data: { messages: [] } });
+
+  const result = {
+    messages: messages[0].data,
+    pagination: {
+      page,
+      totalPages,
+    },
+  };
+
+  return res.json(result);
+}
+
 module.exports = {
   create_chat,
+  messages,
   fetch,
 };
