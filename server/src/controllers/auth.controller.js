@@ -27,6 +27,7 @@ function register(req, res) {
           lastName: _doc.lastName,
           gender: _doc.gender,
           email: _doc.email,
+          id: _doc._id,
         },
         token: generate_token({ secretOrKey: _doc.secretOrKey }),
       };
@@ -52,6 +53,7 @@ function login(req, res) {
               gender: _doc.gender,
               avatar: _doc.avatar,
               email: _doc.email,
+              id: _doc._id,
             },
             token: generate_token({ secretOrKey: _doc.secretOrKey }),
           };
