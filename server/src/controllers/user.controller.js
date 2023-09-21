@@ -1,9 +1,11 @@
 const USER = require('../models/user.model');
 const pushToS3 = require('../helpers/uploadToS3');
 
+const HTTP_STATUS = require('../utils/httpStatus.util');
+
 function get_users(req, res) {
   USER.find().then((result) => {
-    res.json(result);
+    res.status(HTTP_STATUS.SUCCESS).json(result);
   });
 }
 
@@ -32,7 +34,9 @@ async function update_user(req, res) {
     });
 
     if (s3Upload.error) {
-      return res.status(500).json({ error: s3Upload.error });
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .json({ error: s3Upload.error });
     }
 
     if (s3Upload.$metadata.httpStatusCode === 200) {
@@ -42,7 +46,9 @@ async function update_user(req, res) {
 
   USER.updateOne({ secretOrKey }, payload)
     .then((result) => result && res.json(payload))
-    .catch((e) => res.status(500).json({ error: e }));
+    .catch((e) =>
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: e })
+    );
 }
 module.exports = {
   update_user,

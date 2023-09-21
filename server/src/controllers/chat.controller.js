@@ -5,16 +5,20 @@ const mongoose = require('mongoose');
 const CHAT = require('../models/chat.model');
 const USER = require('../models/user.model');
 const CHAT_USER = require('../models/chatUser.model');
-const MESSAGE = require('../models/message.model');
 
+const Message = require('../models/message.model');
 const Conversation = require('../models/conversation.model');
+
+const HTTP_STATUS = require('../utils/httpStatus.util');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 async function create(req, res) {
   try {
     const { partnerId } = req.body;
     if (!partnerId)
-      return res.status(400).json({ error: 'PartnerId is required' });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: 'PartnerId is required' });
 
     const currentUser = await validateAndGetUser(null, req);
 
@@ -22,7 +26,7 @@ async function create(req, res) {
 
     if (String(currentUser._id) === String(partnerUser._id))
       return res
-        .status(400)
+        .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: 'Cannot create a conversation with yourself.' });
 
     const conversation = await Conversation.findOneAndUpdate(
@@ -57,7 +61,99 @@ async function create(req, res) {
 
     return res.json(responseData);
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error });
+  }
+}
+
+async function add_message(req, res) {
+  try {
+    const { conversationId, text, media } = req.body;
+    if (!conversationId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: 'ConversationId is required' });
+    }
+
+    if (!text && !media) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: 'Text or Media is required' });
+    }
+
+    const [currentUser, conversation] = await Promise.all([
+      validateAndGetUser(null, req),
+      Conversation.findOne({
+        _id: conversationId,
+        participants: { $in: [currentUser._id] },
+      }),
+    ]);
+
+    if (!conversation) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: 'Conversation not found' });
+    }
+
+    const message = await Message.create({
+      conversation: conversationId,
+      senderId: currentUser._id,
+      media,
+      text,
+    });
+    async function add_message(req, res) {
+      try {
+        const { conversationId, text, media } = req.body;
+
+        if (!conversationId) {
+          return res
+            .status(HTTP_STATUS.BAD_REQUEST)
+            .json({ error: 'ConversationId is required' });
+        }
+
+        if (!text && !media) {
+          return res
+            .status(HTTP_STATUS.BAD_REQUEST)
+            .json({ error: 'Text or Media is required' });
+        }
+
+        const currentUser = await validateAndGetUser(null, req);
+
+        // Now that we have currentUser, we can search for the conversation.
+        const conversation = await Conversation.findOne({
+          _id: conversationId,
+          participants: { $in: [currentUser._id] },
+        });
+
+        if (!conversation) {
+          return res
+            .status(HTTP_STATUS.NOT_FOUND)
+            .json({ error: 'Conversation not found' });
+        }
+
+        const message = await Message.create({
+          conversation: conversationId,
+          senderId: currentUser._id,
+          media,
+          text,
+        });
+
+        res.status(HTTP_STATUS.CREATED).json(message);
+      } catch (error) {
+        console.error('Error in add_message:', error.message);
+
+        res
+          .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+          .json({ error: 'Internal Server Error' });
+      }
+    }
+
+    res.status(HTTP_STATUS.CREATED).json(message);
+  } catch (error) {
+    console.error('Error in add_message:', error.message);
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Internal Server Error' });
   }
 }
 
@@ -270,6 +366,8 @@ async function messages(req, res) {
 module.exports = {
   create_chat,
   messages,
+
   fetch,
   create,
+  add_message,
 };
