@@ -1,9 +1,65 @@
+'use strict';
+
 const mongoose = require('mongoose');
 
 const CHAT = require('../models/chat.model');
 const USER = require('../models/user.model');
 const CHAT_USER = require('../models/chatUser.model');
 const MESSAGE = require('../models/message.model');
+
+const Conversation = require('../models/conversation.model');
+const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
+
+async function create(req, res) {
+  try {
+    const { partnerId } = req.body;
+    if (!partnerId)
+      return res.status(400).json({ error: 'PartnerId is required' });
+
+    const currentUser = await validateAndGetUser(null, req);
+
+    const partnerUser = await validateAndGetUser(partnerId);
+
+    if (String(currentUser._id) === String(partnerUser._id))
+      return res
+        .status(400)
+        .json({ error: 'Cannot create a conversation with yourself.' });
+
+    const conversation = await Conversation.findOneAndUpdate(
+      {
+        participants: {
+          $all: [
+            { $elemMatch: { $eq: currentUser._id } },
+            { $elemMatch: { $eq: partnerUser._id } },
+          ],
+          $size: 2,
+        },
+      },
+      {
+        participants: [currentUser._id, partnerUser._id],
+      },
+      {
+        upsert: true, // Create a new document if one doesn't exist
+        new: true, // Return the new document if created, otherwise return the original
+        setDefaultsOnInsert: true, // Use the schema's default values if a new document is created
+      }
+    );
+
+    const responseData = {
+      ...conversation._doc,
+      partnerData: {
+        id: partnerUser._id,
+        avatar: partnerUser.avatar,
+        firstName: partnerUser.firstName,
+        lastName: partnerUser.lastName,
+      },
+    };
+
+    return res.json(responseData);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+}
 
 async function fetch(req, res) {
   const { secretOrKey } = req.user;
@@ -215,4 +271,5 @@ module.exports = {
   create_chat,
   messages,
   fetch,
+  create,
 };

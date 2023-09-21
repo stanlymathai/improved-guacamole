@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 
-const http = require('http');
-
 const app = require('../src/app');
 const socketServer = require('../src/socket');
-const config = require('../src/configs/env.config/app.env');
 
+const config = require('../src/configs/env.config/app.env');
 const port = normalizePort(config.app_port || '3000');
 app.set('port', port);
 
-const server = http.createServer(app);
-
+const server = require('http').createServer(app);
 socketServer(server);
 server.listen(port);
 
@@ -33,11 +30,9 @@ function onError(error) {
     case 'EACCES':
       console.error(`${bind} requires elevated privileges`);
       process.exit(1);
-      break;
     case 'EADDRINUSE':
       console.error(`${bind} is already in use`);
       process.exit(1);
-      break;
     default:
       throw error;
   }
