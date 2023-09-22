@@ -10,6 +10,8 @@ const Message = require('../models/message.model');
 const Conversation = require('../models/conversation.model');
 
 const HTTP_STATUS = require('../utils/httpStatus.util');
+const ERROR_MESSAGES = require('../utils/errorMessage.util');
+
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 async function create(req, res) {
@@ -18,16 +20,16 @@ async function create(req, res) {
     if (!partnerId)
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: 'PartnerId is required' });
+        .json({ error: ERROR_MESSAGES.PARTNER_ID_IS_REQUIRED });
 
     const currentUser = await validateAndGetUser(null, req);
 
     const partnerUser = await validateAndGetUser(partnerId);
 
     if (String(currentUser._id) === String(partnerUser._id))
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: 'Cannot create a conversation with yourself.' });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        error: ERROR_MESSAGES.CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF,
+      });
 
     const conversation = await Conversation.findOneAndUpdate(
       {
@@ -65,95 +67,47 @@ async function create(req, res) {
   }
 }
 
-async function add_message(req, res) {
+async function message(req, res) {
   try {
-    const { conversationId, text, media } = req.body;
-    if (!conversationId) {
+    const { chatId, text, media } = req.body;
+    if (!chatId) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: 'ConversationId is required' });
+        .json({ error: ERROR_MESSAGES.MISSING_CHAT_ID });
     }
 
     if (!text && !media) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: 'Text or Media is required' });
+        .json({ error: ERROR_MESSAGES.MISSING_TEXT_OR_MEDIA });
     }
 
-    const [currentUser, conversation] = await Promise.all([
-      validateAndGetUser(null, req),
-      Conversation.findOne({
-        _id: conversationId,
-        participants: { $in: [currentUser._id] },
-      }),
-    ]);
+    const currentUser = await validateAndGetUser(null, req);
+    const conversation = await Conversation.findOne({
+      _id: chatId,
+      participants: { $in: [currentUser._id] },
+    });
 
     if (!conversation) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
-        .json({ error: 'Conversation not found' });
+        .json({ error: ERROR_MESSAGES.CHAT_NOT_FOUND });
     }
 
-    const message = await Message.create({
-      conversation: conversationId,
+    await Message.create({
+      conversation: conversation._id,
       senderId: currentUser._id,
       media,
       text,
     });
-    async function add_message(req, res) {
-      try {
-        const { conversationId, text, media } = req.body;
 
-        if (!conversationId) {
-          return res
-            .status(HTTP_STATUS.BAD_REQUEST)
-            .json({ error: 'ConversationId is required' });
-        }
-
-        if (!text && !media) {
-          return res
-            .status(HTTP_STATUS.BAD_REQUEST)
-            .json({ error: 'Text or Media is required' });
-        }
-
-        const currentUser = await validateAndGetUser(null, req);
-
-        // Now that we have currentUser, we can search for the conversation.
-        const conversation = await Conversation.findOne({
-          _id: conversationId,
-          participants: { $in: [currentUser._id] },
-        });
-
-        if (!conversation) {
-          return res
-            .status(HTTP_STATUS.NOT_FOUND)
-            .json({ error: 'Conversation not found' });
-        }
-
-        const message = await Message.create({
-          conversation: conversationId,
-          senderId: currentUser._id,
-          media,
-          text,
-        });
-
-        res.status(HTTP_STATUS.CREATED).json(message);
-      } catch (error) {
-        console.error('Error in add_message:', error.message);
-
-        res
-          .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-          .json({ error: 'Internal Server Error' });
-      }
-    }
-
-    res.status(HTTP_STATUS.CREATED).json(message);
+    res.status(HTTP_STATUS.CREATED).json({ success: true });
   } catch (error) {
     console.error('Error in add_message:', error.message);
 
     res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ error: 'Internal Server Error' });
+      .json({ error: error.message });
   }
 }
 
@@ -369,5 +323,5 @@ module.exports = {
 
   fetch,
   create,
-  add_message,
+  message,
 };

@@ -12,7 +12,6 @@ import './friendList.scss';
 const FriendList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chat.chats);
-  const socket = useSelector((state) => state.chat.socket);
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
