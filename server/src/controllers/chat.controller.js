@@ -18,9 +18,10 @@ async function create(req, res) {
   try {
     const { partnerId } = req.body;
     if (!partnerId)
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MESSAGES.PARTNER_ID_IS_REQUIRED });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGES.PARTNER_ID_IS_REQUIRED,
+      });
 
     const currentUser = await validateAndGetUser(null, req);
 
@@ -28,6 +29,7 @@ async function create(req, res) {
 
     if (String(currentUser._id) === String(partnerUser._id))
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
         error: ERROR_MESSAGES.CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF,
       });
 
@@ -61,9 +63,12 @@ async function create(req, res) {
       },
     };
 
-    return res.json(responseData);
+    return res.json({ success: true, data: responseData });
   } catch (error) {
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error });
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: error.message,
+    });
   }
 }
 
@@ -71,15 +76,17 @@ async function message(req, res) {
   try {
     const { chatId, text, media } = req.body;
     if (!chatId) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MESSAGES.MISSING_CHAT_ID });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGES.MISSING_CHAT_ID,
+      });
     }
 
     if (!text && !media) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: ERROR_MESSAGES.MISSING_TEXT_OR_MEDIA });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGES.MISSING_TEXT_OR_MEDIA,
+      });
     }
 
     const currentUser = await validateAndGetUser(null, req);
@@ -89,9 +96,10 @@ async function message(req, res) {
     });
 
     if (!conversation) {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ error: ERROR_MESSAGES.CHAT_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: ERROR_MESSAGES.CHAT_NOT_FOUND,
+      });
     }
 
     await Message.create({
@@ -103,66 +111,39 @@ async function message(req, res) {
 
     res.status(HTTP_STATUS.CREATED).json({ success: true });
   } catch (error) {
-    console.error('Error in add_message:', error.message);
-
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ error: error.message });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: error.message,
+    });
   }
 }
 
-async function fetch(req, res) {
-  const { secretOrKey } = req.user;
-  const _user = await USER.findOne({ secretOrKey }, { _id: 1 });
+async function fetchUserConversations(req, res) {
+  try {
+    const currentUser = await validateAndGetUser(null, req);
+    if (!currentUser) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: ERROR_MESSAGES.UNAUTHORIZED_TO_PERFORM_THIS_ACTION,
+      });
+    }
 
-  if (!_user)
-    return res.status(403).json({
-      status: 'Error',
-      message: 'Unauthorized to perform this action.',
+    const conversations = await Conversation.find({
+      participants: { $in: [currentUser._id] },
+    }).populate('lastMessage');
+
+    return res.status(HTTP_STATUS.SUCCESS).json({
+      success: true,
+      data: conversations,
     });
-
-  CHAT.aggregate([
-    {
-      $lookup: {
-        from: 'chatusers',
-        localField: '_id',
-        foreignField: 'chatId',
-        as: 'ChatUser',
-      },
-    },
-    {
-      $lookup: {
-        from: 'users',
-        pipeline: [{ $match: { secretOrKey: { $ne: secretOrKey } } }],
-        localField: 'ChatUser.userId',
-        foreignField: '_id',
-        as: 'Users',
-      },
-    },
-    {
-      $lookup: {
-        from: 'messages',
-        pipeline: [
-          { $sort: { _id: -1 } },
-          { $limit: 10 },
-          {
-            $lookup: {
-              from: 'users',
-              pipeline: [{ $limit: 1 }],
-              localField: 'senderId',
-              foreignField: '_id',
-              as: 'User',
-            },
-          },
-        ],
-        localField: '_id',
-        foreignField: 'chatId',
-        as: 'Messages',
-      },
-    },
-  ])
-    .then((chats) => res.status(200).json(chats))
-    .catch((error) => res.status(500).json({ error }));
+  } catch (error) {
+    console.error('Error in fetch_conversations:', error.message);
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    .json({
+      success: false,
+      error: error.message,
+    });
+  }
 }
 
 async function create_chat(req, res) {
@@ -318,10 +299,10 @@ async function messages(req, res) {
 }
 
 module.exports = {
+  fetchUserConversations,
   create_chat,
   messages,
 
-  fetch,
   create,
   message,
 };

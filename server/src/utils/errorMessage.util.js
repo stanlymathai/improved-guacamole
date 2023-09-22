@@ -5,6 +5,7 @@ const ERROR_MESSAGES = {
   PARTNER_ID_IS_REQUIRED: 'PartnerId is required',
   CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF:
     'Cannot create a conversation with yourself.',
+  UNAUTHORIZED_TO_PERFORM_THIS_ACTION: 'Unauthorized to perform this action.',
 };
 
 module.exports = ERROR_MESSAGES;
