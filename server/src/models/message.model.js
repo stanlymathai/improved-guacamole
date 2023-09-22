@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Simplified URL regex for validating media URLs
+// URL regex for validating media URLs
 const URL_REGEX = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w.-]*)*\/?$/;
 
 const messageSchema = new mongoose.Schema(

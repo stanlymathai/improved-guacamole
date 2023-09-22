@@ -6,15 +6,18 @@ const CHAT = require('../models/chat.model');
 const USER = require('../models/user.model');
 const CHAT_USER = require('../models/chatUser.model');
 
-const Message = require('../models/message.model');
-const Conversation = require('../models/conversation.model');
-
 const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
+const {
+  getUserConversations,
+  createOrUpdateConversation,
+} = require('../services/chat.service');
+const { processMessage } = require('../services/message.service');
+
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
-async function create(req, res) {
+async function initiateOrUpdateConversation(req, res) {
   try {
     const { partnerId } = req.body;
     if (!partnerId)
@@ -33,24 +36,9 @@ async function create(req, res) {
         error: ERROR_MESSAGES.CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF,
       });
 
-    const conversation = await Conversation.findOneAndUpdate(
-      {
-        participants: {
-          $all: [
-            { $elemMatch: { $eq: currentUser._id } },
-            { $elemMatch: { $eq: partnerUser._id } },
-          ],
-          $size: 2,
-        },
-      },
-      {
-        participants: [currentUser._id, partnerUser._id],
-      },
-      {
-        upsert: true, // Create a new document if one doesn't exist
-        new: true, // Return the new document if created, otherwise return the original
-        setDefaultsOnInsert: true, // Use the schema's default values if a new document is created
-      }
+    const conversation = await createOrUpdateConversation(
+      currentUser,
+      partnerUser
     );
 
     const responseData = {
@@ -72,7 +60,7 @@ async function create(req, res) {
   }
 }
 
-async function message(req, res) {
+async function createNewMessageInConversation(req, res) {
   try {
     const { chatId, text, media } = req.body;
     if (!chatId) {
@@ -90,28 +78,16 @@ async function message(req, res) {
     }
 
     const currentUser = await validateAndGetUser(null, req);
-    const conversation = await Conversation.findOne({
-      _id: chatId,
-      participants: { $in: [currentUser._id] },
-    });
 
-    if (!conversation) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-        success: false,
-        error: ERROR_MESSAGES.CHAT_NOT_FOUND,
-      });
-    }
-
-    await Message.create({
-      conversation: conversation._id,
-      senderId: currentUser._id,
-      media,
-      text,
-    });
+    await processMessage(chatId, text, media, currentUser);
 
     res.status(HTTP_STATUS.CREATED).json({ success: true });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    let errorCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+    if (error.message === ERROR_MESSAGES.CHAT_NOT_FOUND) {
+      errorCode = HTTP_STATUS.NOT_FOUND;
+    }
+    res.status(errorCode).json({
       success: false,
       error: error.message,
     });
@@ -128,18 +104,14 @@ async function fetchUserConversations(req, res) {
       });
     }
 
-    const conversations = await Conversation.find({
-      participants: { $in: [currentUser._id] },
-    }).populate('lastMessage');
+    const conversations = await getUserConversations(currentUser._id);
 
     return res.status(HTTP_STATUS.SUCCESS).json({
       success: true,
       data: conversations,
     });
   } catch (error) {
-    console.error('Error in fetch_conversations:', error.message);
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-    .json({
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: error.message,
     });
@@ -299,10 +271,10 @@ async function messages(req, res) {
 }
 
 module.exports = {
+  createNewMessageInConversation,
+  initiateOrUpdateConversation,
   fetchUserConversations,
+
   create_chat,
   messages,
-
-  create,
-  message,
 };
