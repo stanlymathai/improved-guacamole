@@ -2,12 +2,14 @@ const mongoose = require('mongoose');
 
 const conversationSchema = new mongoose.Schema(
   {
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
+    name: {
+      type: String,
+      default: null,
+    },
+    image: {
+      type: String,
+      default: null,
+    },
     type: {
       type: String,
       enum: ['dual', 'group'],
@@ -18,9 +20,15 @@ const conversationSchema = new mongoose.Schema(
       ref: 'Message',
       default: null,
     },
+    participants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     status: {
       type: String,
-      enum: ['ACTIVE', 'DELETED', 'ARCHIVED', 'PENDING', 'REPORTED', 'MUTED'],
+      enum: ['ACTIVE', 'DELETED', 'ARCHIVED', 'REPORTED', 'MUTED'],
       default: 'ACTIVE',
     },
   },

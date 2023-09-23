@@ -41,17 +41,7 @@ async function initiateOrUpdateConversation(req, res) {
       partnerUser
     );
 
-    const responseData = {
-      ...conversation._doc,
-      partnerData: {
-        id: partnerUser._id,
-        avatar: partnerUser.avatar,
-        firstName: partnerUser.firstName,
-        lastName: partnerUser.lastName,
-      },
-    };
-
-    return res.json({ success: true, data: responseData });
+    return res.json({ success: true, data: conversation });
   } catch (error) {
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,

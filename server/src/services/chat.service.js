@@ -5,25 +5,39 @@ async function getUserConversations(userId) {
     { $match: { participants: { $in: [userId] } } },
     { $sort: { updatedAt: -1 } },
     {
+      $addFields: {
+        chatId: '$_id',
+        isOnline: {
+          $cond: [{ $eq: ['$type', 'dual'] }, false, null],
+        },
+      },
+    },
+    { $project: { participants: 0, _id: 0 } },
+
+    {
       $lookup: {
         from: 'messages',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              pipeline: [
+                { $project: { firstName: 1, lastName: 1, avatar: 1, _id: 0 } },
+              ],
+              localField: 'senderId',
+              foreignField: '_id',
+              as: 'sender',
+            },
+          },
+          { $unwind: { path: '$sender' } },
+          { $project: { sender: 1, text: 1, createdAt: 1, _id: 0 } },
+        ],
         localField: 'lastMessage',
         foreignField: '_id',
         as: 'lastMessage',
       },
     },
     { $unwind: { path: '$lastMessage', preserveNullAndEmptyArrays: true } },
-    {
-      $project: {
-        participants: 0,
-        lastMessage: {
-          status: 0,
-          senderId: 0,
-          conversation: 0,
-          originalContent: 0,
-        },
-      },
-    },
   ]);
 }
 
@@ -39,12 +53,15 @@ async function createOrUpdateConversation(currentUser, partnerUser) {
       },
     },
     {
+      image: partnerUser.avatar,
       participants: [currentUser._id, partnerUser._id],
+      name: partnerUser.firstName + ' ' + partnerUser.lastName,
     },
     {
       upsert: true,
       new: true,
       setDefaultsOnInsert: true,
+      projection: { participants: 0 },
     }
   );
 }

@@ -5,20 +5,23 @@ import { setCurrentChat } from '../../../../store/actions.store/chat.action';
 import chatService from '../../../../services/chat.service';
 
 import Modal from '../modal.element';
-import Friend from '../friend.element';
+import Chat from '../chat.element';
 
-import './friendList.scss';
+import './chatList.scss';
 
-const FriendList = () => {
+const ChatList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chat.chats);
+
+  console.log('chats knri', chats);
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
 
   // handler fn's
   const openChat = (chat) => {
-    dispatch(setCurrentChat(chat));
+    // dispatch(setCurrentChat(chat));
+    console.log('opening chat', chat);
   };
 
   const searchFriends = (e) => {
@@ -32,7 +35,7 @@ const FriendList = () => {
   return (
     <div id="friends" className="shadow-light">
       <div id="title">
-        <h3 className="m-0">Friends</h3>
+        <h3 className="m-0">Peers</h3>
         <button onClick={() => setShowFriendsModal(true)}>ADD</button>
       </div>
 
@@ -42,7 +45,7 @@ const FriendList = () => {
         {chats.length > 0 ? (
           chats.map((chat) => {
             return (
-              <Friend click={() => openChat(chat)} chat={chat} key={chat._id} />
+              <Chat click={() => openChat(chat)} chat={chat} key={chat._id} />
             );
           })
         ) : (
@@ -81,4 +84,4 @@ const FriendList = () => {
   );
 };
 
-export default FriendList;
+export default ChatList;

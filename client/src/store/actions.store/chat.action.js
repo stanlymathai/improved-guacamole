@@ -4,14 +4,9 @@ import * as types from '../types.store/chat.type';
 export const fetchChats = () => async (dispatch) => {
   try {
     const data = await chatService.fetchChats();
-    data.forEach((chat) => {
-      chat.Users.forEach((user) => {
-        user.status = 'offline';
-      });
-      chat.Messages.reverse();
-    });
+    if (data.success !== true) throw new Error(data.error.message);
 
-    dispatch({ type: types.FETCH_CHATS, payload: data });
+    dispatch({ type: types.FETCH_CHATS, payload: data.data });
     return data;
   } catch (err) {
     throw err;
