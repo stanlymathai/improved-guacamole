@@ -6,7 +6,7 @@ import { fetchChats } from '../../store/actions.store/chat.action';
 
 import Navbar from './elements.chatboard/navabar.element';
 import ChatList from './elements.chatboard/chatList.element';
-// import Messenger from './elements.chatboard/messenger.element';
+import Messenger from './elements.chatboard/messenger.element';
 
 import './chatboard.scss';
 
@@ -27,7 +27,7 @@ const Chat = () => {
       <Navbar />
       <div id="chat-wrap">
         <ChatList />
-        {/* <Messenger /> */}
+        <Messenger />
       </div>
     </div>
   );

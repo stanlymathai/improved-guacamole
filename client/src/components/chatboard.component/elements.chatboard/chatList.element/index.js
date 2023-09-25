@@ -19,9 +19,8 @@ const ChatList = () => {
   const [suggestions, setSuggestions] = useState([]);
 
   // handler fn's
-  const openChat = (chat) => {
-    // dispatch(setCurrentChat(chat));
-    console.log('opening chat', chat);
+  const openChat = (_id) => {
+    dispatch(setCurrentChat(_id));
   };
 
   const searchFriends = (e) => {
@@ -43,9 +42,13 @@ const ChatList = () => {
 
       <div id="friends-box">
         {chats.length > 0 ? (
-          chats.map((chat) => {
+          chats.map((el) => {
             return (
-              <Chat click={() => openChat(chat)} chat={chat} key={chat._id} />
+              <Chat
+                chat={el}
+                key={el.chatId}
+                click={() => openChat(el.chatId)}
+              />
             );
           })
         ) : (

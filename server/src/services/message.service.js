@@ -1,6 +1,23 @@
 const Message = require('../models/message.model');
 const Conversation = require('../models/conversation.model');
 
+async function fetchPaginatedMessages(chatId, page, limit) {
+  const options = {
+    page: page,
+    limit: limit,
+    sort: { _id: -1 },
+    select: 'text type media createdAt',
+    populate: [
+      {
+        path: 'sender',
+        select: 'firstName lastName avatar',
+      },
+    ],
+  };
+
+  return await Message.paginate({ conversation: chatId }, options);
+}
+
 async function processMessage(chatId, text, media, user) {
   const conversation = await Conversation.findOne({
     _id: chatId,
@@ -13,7 +30,7 @@ async function processMessage(chatId, text, media, user) {
 
   await Message.create({
     conversation: conversation._id,
-    senderId: user._id,
+    sender: user._id,
     media,
     text,
   });
@@ -22,5 +39,6 @@ async function processMessage(chatId, text, media, user) {
 }
 
 module.exports = {
+  fetchPaginatedMessages,
   processMessage,
 };

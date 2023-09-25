@@ -24,7 +24,7 @@ async function getUserConversations(userId) {
               pipeline: [
                 { $project: { firstName: 1, lastName: 1, avatar: 1, _id: 0 } },
               ],
-              localField: 'senderId',
+              localField: 'sender',
               foreignField: '_id',
               as: 'sender',
             },
@@ -66,7 +66,12 @@ async function createOrUpdateConversation(currentUser, partnerUser) {
   );
 }
 
+async function doesConversationExist(chatId) {
+  return await Conversation.exists({ _id: chatId });
+}
+
 module.exports = {
-  getUserConversations,
   createOrUpdateConversation,
+  doesConversationExist,
+  getUserConversations,
 };

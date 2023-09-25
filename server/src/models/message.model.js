@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 // URL regex for validating media URLs
 const URL_REGEX = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w.-]*)*\/?$/;
@@ -28,7 +29,7 @@ const messageSchema = new mongoose.Schema(
         default: '',
       },
     },
-    senderId: {
+    sender: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'User',
@@ -52,6 +53,9 @@ const messageSchema = new mongoose.Schema(
 
 // index on the conversation field
 messageSchema.index({ conversation: 1 });
+
+// add pagination plugin
+messageSchema.plugin(mongoosePaginate);
 
 /* After saving the message, update the lastMessage
    field in the conversation document.
