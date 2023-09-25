@@ -26,6 +26,16 @@ export const fetchMessages = (chatId) => async (dispatch) => {
   }
 };
 
+export const createChat = (partnerId) => async (dispatch) => {
+  try {
+    const data = await chatService.createChat(partnerId);
+    if (data.success !== true) throw new Error(data.error.message);
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const setCurrentChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };

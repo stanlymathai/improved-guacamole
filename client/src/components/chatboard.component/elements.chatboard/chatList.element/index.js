@@ -1,6 +1,10 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentChat } from '../../../../store/actions.store/chat.action';
+import {
+  fetchChats,
+  createChat,
+  setCurrentChat,
+} from '../../../../store/actions.store/chat.action';
 
 import chatService from '../../../../services/chat.service';
 
@@ -22,11 +26,16 @@ const ChatList = () => {
   };
 
   const searchFriends = (e) => {
-    console.log('searching friends', e.target.value);
+    const { value } = e.target;
+    if (value.length === 0) return setSuggestions([]);
+    chatService.searchUsers(value).then((res) => setSuggestions(res));
   };
 
   const addNewFriend = (id) => {
-    console.log('adding new friend', id);
+    dispatch(createChat(id)).then(() => {
+      dispatch(fetchChats());
+      setShowFriendsModal(false);
+    });
   };
 
   return (
@@ -41,9 +50,7 @@ const ChatList = () => {
       <div id="friends-box">
         {chats.length > 0 ? (
           chats.map((el) => {
-            return (
-              <Chat chat={el} key={el.chatId} click={() => openChat(el)} />
-            );
+            return <Chat chat={el} key={el._id} click={() => openChat(el)} />;
           })
         ) : (
           <p id="no-chat">No friends added</p>
@@ -65,11 +72,11 @@ const ChatList = () => {
             <div id="suggestions">
               {suggestions.map((user) => {
                 return (
-                  <div key={user.id} className="suggestion">
+                  <div key={user._id} className="suggestion">
                     <p className="m-0">
                       {user.firstName} {user.lastName}
                     </p>
-                    <button onClick={() => addNewFriend(user.id)}>ADD</button>
+                    <button onClick={() => addNewFriend(user._id)}>ADD</button>
                   </div>
                 );
               })}

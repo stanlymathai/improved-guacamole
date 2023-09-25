@@ -23,7 +23,7 @@ export const register = (params, setMode) => async (dispatch) => {
 
 export const logout = () => async (dispatch) => {
   try {
-    await authService.logout();
+    authService.logout();
     dispatch({ type: types.LOGOUT });
   } catch (err) {
     console.error('Logout error:', err);

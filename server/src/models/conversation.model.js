@@ -2,14 +2,6 @@ const mongoose = require('mongoose');
 
 const conversationSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      default: null,
-    },
-    image: {
-      type: String,
-      default: null,
-    },
     type: {
       type: String,
       enum: ['dual', 'group'],

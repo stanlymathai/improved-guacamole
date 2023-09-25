@@ -19,6 +19,37 @@ const chatService = {
     }
   },
 
+  searchUsers: async (query) => {
+    try {
+      const { data } = await HTTP.get('/users/', {
+        params: {
+          query,
+        },
+      });
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  createChat: async (partnerId) => {
+    try {
+      const { data } = await HTTP.post('/chats/init', { partnerId });
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  createNewMessage: async (chatId, text) => {
+    try {
+      const { data } = await HTTP.post('/chats/', { chatId, text });
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   uploadImage: (data) => {
     const headers = {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -44,30 +75,6 @@ const chatService = {
     } catch (err) {
       throw err;
     }
-  },
-
-  searchUsers: (term) => {
-    return HTTP.get('/users/search-users', {
-      params: {
-        term,
-      },
-    })
-      .then(({ data }) => {
-        return data;
-      })
-      .catch((err) => {
-        throw err;
-      });
-  },
-
-  createChat: (partnerId) => {
-    return HTTP.post('/chats/create', { partnerId })
-      .then(({ data }) => {
-        return data;
-      })
-      .catch((err) => {
-        throw err;
-      });
   },
 
   addFriendToGroupChat: (userId, chatId) => {

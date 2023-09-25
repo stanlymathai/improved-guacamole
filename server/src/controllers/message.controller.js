@@ -32,9 +32,10 @@ async function fetchConversationMessages(req, res) {
 
   try {
     const result = await fetchPaginatedMessages(chatId, page, limit);
+    const messages = result.docs;
 
     const responseData = {
-      data: result.docs,
+      data: result.docs.reverse(),
       pagination: {
         page: result.page,
         totalPages: result.totalPages,

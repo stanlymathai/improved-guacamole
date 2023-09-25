@@ -17,9 +17,7 @@ const Chat = () => {
   // useSocket(user, dispatch);
 
   useEffect(() => {
-    dispatch(fetchChats())
-      .then((res) => console.log(res, 'chat main'))
-      .catch((err) => console.log(err));
+    dispatch(fetchChats());
   }, [dispatch]);
 
   return (

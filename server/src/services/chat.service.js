@@ -5,14 +5,18 @@ async function getUserConversations(userId) {
     { $match: { participants: { $in: [userId] } } },
     { $sort: { updatedAt: -1 } },
     {
-      $addFields: {
-        chatId: '$_id',
-        isOnline: {
-          $cond: [{ $eq: ['$type', 'dual'] }, false, null],
-        },
+      $lookup: {
+        from: 'users',
+        pipeline: [
+          { $match: { _id: { $ne: userId } } },
+          { $project: { firstName: 1, lastName: 1, avatar: 1 } },
+        ],
+        localField: 'participants',
+        foreignField: '_id',
+        as: 'users',
       },
     },
-    { $project: { participants: 0, _id: 0 } },
+    { $project: { participants: 0 } },
 
     {
       $lookup: {
@@ -22,7 +26,7 @@ async function getUserConversations(userId) {
             $lookup: {
               from: 'users',
               pipeline: [
-                { $project: { firstName: 1, lastName: 1, avatar: 1, _id: 0 } },
+                { $project: { firstName: 1, lastName: 1, avatar: 1 } },
               ],
               localField: 'sender',
               foreignField: '_id',
@@ -30,7 +34,7 @@ async function getUserConversations(userId) {
             },
           },
           { $unwind: { path: '$sender' } },
-          { $project: { sender: 1, text: 1, createdAt: 1, _id: 0 } },
+          { $project: { sender: 1, text: 1, type: 1, createdAt: 1, _id: 0 } },
         ],
         localField: 'lastMessage',
         foreignField: '_id',
@@ -52,11 +56,7 @@ async function createOrUpdateConversation(currentUser, partnerUser) {
         $size: 2,
       },
     },
-    {
-      image: partnerUser.avatar,
-      participants: [currentUser._id, partnerUser._id],
-      name: partnerUser.firstName + ' ' + partnerUser.lastName,
-    },
+    { participants: [currentUser._id, partnerUser._id] },
     {
       upsert: true,
       new: true,

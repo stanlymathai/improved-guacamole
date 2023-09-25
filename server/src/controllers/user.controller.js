@@ -3,10 +3,30 @@ const pushToS3 = require('../helpers/uploadToS3');
 
 const HTTP_STATUS = require('../utils/httpStatus.util');
 
-function get_users(req, res) {
-  USER.find().then((result) => {
-    res.status(HTTP_STATUS.SUCCESS).json(result);
-  });
+async function search_users(req, res) {
+  const RESULTS_LIMIT = 10;
+  const searchQuery = req.query.query;
+
+  if (!searchQuery) {
+    return res.status(400).json({ message: 'Query parameter is required.' });
+  }
+
+  try {
+    const users = await USER.find({
+      $or: [
+        { firstName: new RegExp(searchQuery, 'i') },
+        { lastName: new RegExp(searchQuery, 'i') },
+        { email: new RegExp(searchQuery, 'i') },
+      ],
+    })
+      .select('firstName lastName avatar')
+      .limit(RESULTS_LIMIT);
+
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error('Error during user search:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
 }
 
 async function update_user(req, res) {
@@ -52,5 +72,5 @@ async function update_user(req, res) {
 }
 module.exports = {
   update_user,
-  get_users,
+  search_users,
 };

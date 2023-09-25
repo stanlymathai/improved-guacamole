@@ -26,10 +26,6 @@ const Messenger = () => {
       .catch((err) => console.log(err));
   }, [currentChat]);
 
-  useEffect(() => {
-    console.log(chat);
-  }, [chat]);
-
   const activeChat = () => {
     return currentChat.chatId ? true : false;
   };
@@ -40,8 +36,8 @@ const Messenger = () => {
         <div id="messenger-wrap">
           <ChatHeader chat={chat} currentChat={currentChat} />
           <hr />
-          {/* <MessageBox chat={chat} />
-          <MessageInput chat={chat} /> */}
+          <MessageBox chat={chat} />
+          <MessageInput chat={chat} />
         </div>
       ) : (
         <p>No active chat</p>
