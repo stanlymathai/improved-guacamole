@@ -72,7 +72,7 @@ const MessageInput = ({ chat }) => {
     formData.append('id', chat.id);
     formData.append('image', image);
 
-    console.log('handleImageUpload knri', formData);
+    console.log('handleImageUpload', formData);
   };
 
   const selectEmoji = (emoji) => {

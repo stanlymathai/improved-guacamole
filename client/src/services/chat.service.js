@@ -10,6 +10,15 @@ const chatService = {
     }
   },
 
+  fetchMessages: async (chatId) => {
+    try {
+      const { data } = await HTTP.get(`/chats/fetch?id=${chatId}`);
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   uploadImage: (data) => {
     const headers = {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

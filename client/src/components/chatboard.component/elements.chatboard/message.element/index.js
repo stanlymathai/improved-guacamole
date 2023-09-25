@@ -1,31 +1,25 @@
 import React from 'react';
 import './message.scss';
 
-const Message = ({ user, chat, index, message }) => {
-  const determineMargin = () => {
-    if (index + 1 === chat.Messages.length) return;
-
-    return message.senderId === chat.Messages[index + 1].senderId
-      ? 'mb-5'
-      : 'mb-10';
-  };
-
+const Message = ({ message, user }) => {
   return (
     <div
-      className={`message ${determineMargin()} ${
-        message.senderId === user.id ? 'creator' : ''
+      className={`message mb-5 ${
+        message.sender._id === user.id ? 'creator' : ''
       }`}
     >
-      <div className={message.senderId === user.id ? 'owner' : 'other-person'}>
-        {message.senderId !== user.id ? (
+      <div
+        className={message.sender._id === user.id ? 'owner' : 'other-person'}
+      >
+        {message.sender._id !== user.id ? (
           <h6 className="m-0">
-            {message.User.firstName} {message.User.lastName}
+            {message.sender.firstName} {message.sender.lastName}
           </h6>
         ) : null}{' '}
         {message.type === 'text' ? (
-          <p className="m-0">{message.message}</p>
+          <p className="m-0">{message.text}</p>
         ) : (
-          <img src={message.message} alt="User upload" />
+          <img src={message.media} alt="User upload" />
         )}
       </div>
     </div>

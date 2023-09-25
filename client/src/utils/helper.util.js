@@ -1,3 +1,4 @@
 export const userStatus = (status) => {
-  return status ? 'online' : 'offline';
+  return 'online';
+  // return status ? 'online' : 'offline';
 };

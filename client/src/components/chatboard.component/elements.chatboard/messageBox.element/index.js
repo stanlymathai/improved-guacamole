@@ -72,16 +72,8 @@ const MessageBox = ({ chat }) => {
           <FontAwesomeIcon icon="spinner" className="fa-spin" />
         </p>
       ) : null}
-      {chat.Messages.map((message, index) => {
-        return (
-          <Message
-            user={user}
-            chat={chat}
-            message={message}
-            index={index}
-            key={message._id}
-          />
-        );
+      {chat.map((message) => {
+        return <Message message={message} key={message._id} user={user} />;
       })}
       {senderTyping.typing && senderTyping.chatId === chat.id ? (
         <div className="message mt-5p">

@@ -13,14 +13,12 @@ const ChatList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chat.chats);
 
-  console.log('chats knri', chats);
-
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
 
   // handler fn's
-  const openChat = (_id) => {
-    dispatch(setCurrentChat(_id));
+  const openChat = (chat) => {
+    dispatch(setCurrentChat(chat));
   };
 
   const searchFriends = (e) => {
@@ -44,11 +42,7 @@ const ChatList = () => {
         {chats.length > 0 ? (
           chats.map((el) => {
             return (
-              <Chat
-                chat={el}
-                key={el.chatId}
-                click={() => openChat(el.chatId)}
-              />
+              <Chat chat={el} key={el.chatId} click={() => openChat(el)} />
             );
           })
         ) : (

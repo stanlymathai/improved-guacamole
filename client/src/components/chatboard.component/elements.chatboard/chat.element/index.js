@@ -9,7 +9,7 @@ const Chat = ({ chat, click }) => {
   const currentChat = useSelector((state) => state.chat.currentChat);
 
   const isChatOpened = () => {
-    return currentChat.id === chat.id ? 'opened' : '';
+    return currentChat.chatId === chat.chatId ? 'opened' : '';
   };
 
   return (

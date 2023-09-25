@@ -3,8 +3,8 @@ import * as types from '../types.store/chat.type';
 const initialState = {
   chats: [],
   socket: {},
-  currentChat: {},
   scrollBottom: 0,
+  currentChat: {},
   senderTyping: { typing: false },
   newMessage: { chatId: null, seen: null },
 };

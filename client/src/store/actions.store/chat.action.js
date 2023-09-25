@@ -13,6 +13,19 @@ export const fetchChats = () => async (dispatch) => {
   }
 };
 
+export const fetchMessages = (chatId) => async (dispatch) => {
+  try {
+    const data = await chatService.fetchMessages(chatId);
+    console.log('data knri', data);
+    if (data.success !== true) throw new Error(data.error.message);
+
+    // dispatch({ type: types.FETCH_CHATS, payload: data.data });
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const setCurrentChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };
