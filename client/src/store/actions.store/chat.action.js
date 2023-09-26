@@ -5,7 +5,6 @@ export const fetchChats = () => async (dispatch) => {
   try {
     const data = await chatService.fetchChats();
     if (data.success !== true) throw new Error(data.error.message);
-
     dispatch({ type: types.FETCH_CHATS, payload: data.data });
     return data;
   } catch (err) {
@@ -16,11 +15,11 @@ export const fetchChats = () => async (dispatch) => {
 export const fetchMessages = (chatId) => async (dispatch) => {
   try {
     const data = await chatService.fetchMessages(chatId);
-    console.log('data knri', data);
     if (data.success !== true) throw new Error(data.error.message);
-
-    // dispatch({ type: types.FETCH_CHATS, payload: data.data });
-    return data;
+    return dispatch({
+      type: types.FETCH_MESSAGES,
+      payload: { messages: data.data, pagination: data.pagination },
+    });
   } catch (err) {
     throw err;
   }

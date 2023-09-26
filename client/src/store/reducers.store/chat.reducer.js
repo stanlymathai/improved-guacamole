@@ -2,11 +2,9 @@ import * as types from '../types.store/chat.type';
 
 const initialState = {
   chats: [],
-  socket: {},
-  scrollBottom: 0,
   currentChat: {},
-  senderTyping: { typing: false },
-  newMessage: { chatId: null, seen: null },
+  currentChatMessages: [],
+  currentChatPagination: {},
 };
 
 const chatReducer = (state = initialState, action) => {
@@ -23,9 +21,16 @@ const chatReducer = (state = initialState, action) => {
       return {
         ...state,
         currentChat: payload,
-        scrollBottom: state.scrollBottom + 1,
-        newMessage: { chatId: null, seen: null },
       };
+
+    case types.FETCH_MESSAGES: {
+      const { messages, pagination } = payload;
+      return {
+        ...state,
+        currentChatMessages: messages,
+        currentChatPagination: pagination,
+      };
+    }
 
     case types.PAGINATE_MESSAGES: {
       const { messages, id, pagination } = payload;

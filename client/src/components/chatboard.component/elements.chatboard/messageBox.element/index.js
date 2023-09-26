@@ -6,85 +6,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { paginateMessages } from '../../../../store/actions.store/chat.action';
 import './messageBox.scss';
 
-const MessageBox = ({ chat }) => {
+const MessageBox = () => {
   const dispatch = useDispatch();
-
-  const user = useSelector((state) => state.auth.user);
-  const scrollBottom = useSelector((state) => state.chat.scrollBottom);
-  const senderTyping = useSelector((state) => state.chat.senderTyping);
   const [loading, setLoading] = useState(false);
-  const [scrollUp, setScrollUp] = useState(0);
-
-  const msgBox = useRef();
-
-  const scrollManual = (value) => {
-    msgBox.current.scrollTop = value;
-  };
-
-  const handleInfiniteScroll = (e) => {
-    if (e.target.scrollTop === 0) {
-      setLoading(true);
-      const pagination = chat.Pagination;
-      const page = typeof pagination === 'undefined' ? 1 : pagination.page;
-
-      dispatch(paginateMessages(chat._id, parseInt(page) + 1))
-        .then((res) => {
-          if (res) {
-            setScrollUp(scrollUp + 1);
-          }
-          setLoading(false);
-        })
-        .catch((err) => {
-          setLoading(false);
-        });
-    }
-  };
-
-  useEffect(() => {
-    setTimeout(() => {
-      scrollManual(Math.ceil(msgBox.current.scrollHeight * 0.1));
-    }, 100);
-  }, [scrollUp]);
-
-  useEffect(() => {
-    if (
-      senderTyping.typing &&
-      msgBox.current.scrollTop > msgBox.current.scrollHeight * 0.3
-    ) {
-      setTimeout(() => {
-        scrollManual(msgBox.current.scrollHeight);
-      }, 100);
-    }
-  }, [senderTyping]);
-
-  useEffect(() => {
-    if (!senderTyping.typing) {
-      setTimeout(() => {
-        scrollManual(msgBox.current.scrollHeight);
-      }, 100);
-    }
-  }, [scrollBottom]);
+  const user = useSelector((state) => state.auth.user);
+  const messages = useSelector((state) => state.chat.currentChatMessages);
 
   return (
-    <div onScroll={handleInfiniteScroll} id="msg-box" ref={msgBox}>
+    <div id="msg-box">
       {loading ? (
         <p className="loader m-0">
           <FontAwesomeIcon icon="spinner" className="fa-spin" />
         </p>
       ) : null}
-      {chat.map((message) => {
+      {messages.map((message) => {
         return <Message message={message} key={message._id} user={user} />;
       })}
-      {senderTyping.typing && senderTyping.chatId === chat.id ? (
-        <div className="message mt-5p">
-          <div className="other-person">
-            <p className="m-0">
-              {senderTyping.fromUser.firstName} {senderTyping.fromUser.lastName}
-              ...
-            </p>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 };

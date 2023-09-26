@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from '../modal.element';
 import './chatHeader.scss';
 
-const ChatHeader = ({ currentChat }) => {
+const ChatHeader = ({ chat }) => {
   const [showChatOptions, setShowChatOptions] = useState(false);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -28,12 +28,18 @@ const ChatHeader = ({ currentChat }) => {
   return (
     <Fragment>
       <div id="chatter">
-        <div className="chatter-info">
-          <h3>{currentChat.name}</h3>
-          <div className="chatter-status">
-            <span className={`online-status ${userStatus(currentChat)}`}></span>
-          </div>
-        </div>
+        {chat.users.map((user) => {
+          return (
+            <div className="chatter-info" key={user._id}>
+              <h3>
+                {user.firstName} {user.lastName}
+              </h3>
+              <div className="chatter-status">
+                <span className={`online-status ${userStatus(user)}`}></span>
+              </div>
+            </div>
+          );
+        })}
       </div>
       <FontAwesomeIcon
         onClick={() => setShowChatOptions(!showChatOptions)}
@@ -47,7 +53,7 @@ const ChatHeader = ({ currentChat }) => {
             <p>Add user to chat</p>
           </div>
 
-          {currentChat.type === 'group' ? (
+          {chat.type === 'group' ? (
             <div onClick={() => leaveChat()}>
               <FontAwesomeIcon
                 icon={['fas', 'sign-out-alt']}
@@ -57,7 +63,7 @@ const ChatHeader = ({ currentChat }) => {
             </div>
           ) : null}
 
-          {currentChat.type === 'dual' ? (
+          {chat.type === 'dual' ? (
             <div onClick={() => deleteChat()}>
               <FontAwesomeIcon icon={['fas', 'trash']} className="fa-icon" />
               <p>Delete chat</p>

@@ -16,6 +16,7 @@ import './chatList.scss';
 const ChatList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chat.chats);
+  const currentUser = useSelector((state) => state.auth.user);
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -25,10 +26,22 @@ const ChatList = () => {
     dispatch(setCurrentChat(chat));
   };
 
+  function existingUserIds(chats) {
+    return chats
+      .filter((chat) => chat.type === 'dual')
+      .flatMap((chat) => chat.users.map((user) => user._id))
+      .filter(Boolean);
+  }
+
   const searchFriends = (e) => {
     const { value } = e.target;
     if (value.length === 0) return setSuggestions([]);
-    chatService.searchUsers(value).then((res) => setSuggestions(res));
+    const excludeIds = existingUserIds(chats);
+    excludeIds.push(currentUser.id);
+    const excludeIdsString = excludeIds.join(',');
+    chatService
+      .searchUsers(value, excludeIdsString)
+      .then((res) => setSuggestions(res));
   };
 
   const addNewFriend = (id) => {

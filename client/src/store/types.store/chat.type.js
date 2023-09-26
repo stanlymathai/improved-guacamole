@@ -1,5 +1,7 @@
 export const FETCH_CHATS = 'FETCH_CHATS';
+export const FETCH_MESSAGES = 'FETCH_MESSAGES';
 export const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
+
 export const FRIENDS_ONLINE = 'FRIENDS_ONLINE';
 export const FRIEND_ONLINE = 'FRIEND_ONLINE';
 export const FRIEND_OFFLINE = 'FRIEND_OFFLINE';

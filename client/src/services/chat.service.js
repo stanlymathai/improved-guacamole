@@ -19,11 +19,12 @@ const chatService = {
     }
   },
 
-  searchUsers: async (query) => {
+  searchUsers: async (query, idString) => {
     try {
       const { data } = await HTTP.get('/users/', {
         params: {
           query,
+          idString,
         },
       });
       return data;

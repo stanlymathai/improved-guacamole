@@ -6,17 +6,25 @@ const HTTP_STATUS = require('../utils/httpStatus.util');
 async function search_users(req, res) {
   const RESULTS_LIMIT = 10;
   const searchQuery = req.query.query;
+  const idString = req.query.idString;
 
-  if (!searchQuery) {
+  if (!searchQuery || !idString) {
     return res.status(400).json({ message: 'Query parameter is required.' });
   }
 
   try {
+    const excludeIds = idString.split(',');
+
     const users = await USER.find({
-      $or: [
-        { firstName: new RegExp(searchQuery, 'i') },
-        { lastName: new RegExp(searchQuery, 'i') },
-        { email: new RegExp(searchQuery, 'i') },
+      $and: [
+        {
+          $or: [
+            { firstName: new RegExp(searchQuery, 'i') },
+            { lastName: new RegExp(searchQuery, 'i') },
+            { email: new RegExp(searchQuery, 'i') },
+          ],
+        },
+        { _id: { $nin: excludeIds } },
       ],
     })
       .select('firstName lastName avatar')
