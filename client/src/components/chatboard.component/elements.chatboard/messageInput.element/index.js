@@ -47,6 +47,27 @@ const MessageInput = ({ chat }) => {
     // notify other users that this user is typing something
   };
 
+  // temporary solution
+  const handleOnChange = (e) => {
+    const value = e.target.value;
+    setMessage(value);
+    console.log('value', value);
+  };
+
+  const handleOnKeyDown = (e) => {
+    const value = e.target.value;
+    if (value.length > 0) {
+      if (e.key === 'Enter') {
+        console.log('value knri', value);
+        console.log('chat knri', chat);
+        chatService.createNewMessage(chat._id, value).then((res) => {
+          console.log('res knri', res);
+          setMessage('');
+        });
+      }
+    }
+  };
+
   const handleKeyDown = (e, imageUpload) => {
     if (e.key === 'Enter') sendMessage(imageUpload);
   };
@@ -89,23 +110,6 @@ const MessageInput = ({ chat }) => {
     msgInput.current.selectionEnd = endPosition + emojiLength;
   };
 
-  useEffect(() => {
-    const msgBox = document.getElementById('msg-box');
-    if (
-      !newMessage.seen &&
-      newMessage.chatId === chat.id &&
-      msgBox.scrollHeight !== msgBox.clientHeight
-    ) {
-      if (msgBox.scrollTop > msgBox.scrollHeight * 0.3) {
-        dispatch(incrementScroll());
-      } else {
-        setShowNewMessageNotification(true);
-      }
-    } else {
-      setShowNewMessageNotification(false);
-    }
-  }, [newMessage, dispatch]);
-
   const showNewMessage = () => {
     dispatch(incrementScroll());
     setShowNewMessageNotification(false);
@@ -147,13 +151,21 @@ const MessageInput = ({ chat }) => {
         </div>
       </div>
       <div id="message-input">
-        <input
+        {/* <input
           ref={msgInput}
           value={message}
           type="text"
           placeholder="Message..."
           onChange={(e) => handleMessage(e)}
           onKeyDown={(e) => handleKeyDown(e, false)}
+        /> */}
+        <input
+          // ref={msgInput}
+          value={message}
+          type="text"
+          placeholder="Message..."
+          onChange={(e) => handleOnChange(e)}
+          onKeyDown={(e) => handleOnKeyDown(e, false)}
         />
         <FontAwesomeIcon
           onClick={() => setShowEmojiPicker(!showEmojiPicker)}

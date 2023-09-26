@@ -1,6 +1,3 @@
-const mongoose = require('mongoose');
-const CHAT_USER = require('../models/chatUser.model');
-
 const USERS = new Map();
 const USER_SOCKETS = new Map();
 
@@ -13,24 +10,47 @@ const socketServer = (server) => {
   });
 
   io.on('connection', (socket) => {
-    // console.log('socket knri', socket);
-    socket.on('join', async (user) => {
-      // console.log('user knri => join event', user);
+    socket.on('join', async (userId) => {
+      console.log('userId knri => join event', userId);
       let sockets = [];
 
-      if (USERS.has(user.id)) {
-        const existingUser = USERS.get(user.id);
+      if (USERS.has(userId)) {
+        const existingUser = USERS.get(userId);
         existingUser.sockets = [...existingUser.sockets, ...[socket.id]];
-        USERS.set(user.id, existingUser);
+        USERS.set(userId, existingUser);
         sockets = [...existingUser.sockets, ...[socket.id]];
-        USER_SOCKETS.set(socket.id, user.id);
+        USER_SOCKETS.set(socket.id, userId);
       } else {
-        USERS.set(user.id, { id: user.id, sockets: [socket.id] });
+        USERS.set(userId, { id: userId, sockets: [socket.id] });
         sockets.push(socket.id);
-        USER_SOCKETS.set(socket.id, user.id);
+        USER_SOCKETS.set(socket.id, userId);
       }
-      // console.log('user knri => join event => USERS', USERS);
-      // console.log('user knri => join event => USER_SOCKETS', USER_SOCKETS);
+      console.log('user knri => join event => USERS', USERS);
+      console.log('user knri => join event => USER_SOCKETS', USER_SOCKETS);
+    });
+
+    socket.on('disconnect', async () => {
+      if (USER_SOCKETS.has(socket.id)) {
+        const user = USERS.get(USER_SOCKETS.get(socket.id));
+        if (user.sockets.length > 1) {
+          user.sockets = user.sockets.filter((sock) => {
+            if (sock !== socket.id) return true;
+
+            USER_SOCKETS.delete(sock);
+            return false;
+          });
+
+          USERS.set(user.id, user);
+        } else {
+          USER_SOCKETS.delete(socket.id);
+          USERS.delete(user.id);
+        }
+        console.log('user knri => disconnect event => USERS', USERS);
+        console.log(
+          'user knri => disconnect event => USER_SOCKETS',
+          USER_SOCKETS
+        );
+      }
     });
   });
 };

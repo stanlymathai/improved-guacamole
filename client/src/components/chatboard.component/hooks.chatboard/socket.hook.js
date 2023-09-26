@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 
 import socketIOClient from 'socket.io-client';
 
-function useSocket(user, dispatch) {
+function useSocket(userId, dispatch) {
   useEffect(() => {
     const socket = socketIOClient('http://localhost:8080');
 
     socket.on('connect', () => {
       console.log('connected');
-      socket.emit('join', user);
+      socket.emit('join', userId);
     });
 
     socket.on('disconnect', () => {
@@ -22,7 +22,7 @@ function useSocket(user, dispatch) {
     return () => {
       socket.disconnect();
     };
-  }, [user, dispatch]);
+  }, [userId, dispatch]);
 }
 
 export default useSocket;

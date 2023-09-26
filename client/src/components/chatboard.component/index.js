@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
+import useSocket from './hooks.chatboard/socket.hook';
 import { fetchChats } from '../../store/actions.store/chat.action';
 
 import Navbar from './elements.chatboard/navabar.element';
@@ -11,6 +12,9 @@ import './chatboard.scss';
 
 const Chat = () => {
   const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.auth.user);
+  useSocket(user.id, dispatch);
 
   useEffect(() => {
     dispatch(fetchChats());
