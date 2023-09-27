@@ -39,6 +39,10 @@ export const setCurrentChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };
 
+export const setSocket = (socket) => (dispatch) => {
+  dispatch({ type: types.SET_SOCKET, payload: socket });
+};
+
 export const incrementScroll = () => (dispatch) => {
   dispatch({ type: types.INCREMENT_SCROLL });
 };

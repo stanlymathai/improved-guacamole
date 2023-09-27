@@ -2,27 +2,26 @@ import { useEffect } from 'react';
 
 import socketIOClient from 'socket.io-client';
 
-function useSocket(userId, dispatch) {
+import { setSocket } from '../../../store/actions.store/chat.action';
+
+function useSocket(payload, dispatch) {
   useEffect(() => {
     const socket = socketIOClient('http://localhost:8080');
 
     socket.on('connect', () => {
-      console.log('connected');
-      socket.emit('join', userId);
+      dispatch(setSocket(socket));
+
+      socket.emit('join', payload);
     });
 
-    socket.on('disconnect', () => {
-      console.log('disconnected');
-    });
-
-    socket.on('message', (message) => {
-      dispatch({ type: 'RECEIVE_MESSAGE', payload: message });
+    socket.on('error', (error) => {
+      console.error('Socket Error:', error);
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [userId, dispatch]);
+  }, [payload, dispatch]);
 }
 
 export default useSocket;
