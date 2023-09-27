@@ -10,8 +10,15 @@ const socketServer = (server) => {
     },
   });
 
-  const { addUser, removeUser, getUsers, getUserSockets } =
-    require('./userManager.socket')(io);
+  const {
+    addUser,
+    removeUser,
+    getUsers,
+    getUserSockets,
+    getUsersOnlineStatus,
+  } = require('./userManager.socket');
+
+  const { peersIdList } = require('../services/chat.service');
 
   io.on('connection', (socket) => {
     socket.on('join', async (data) => {
@@ -33,6 +40,10 @@ const socketServer = (server) => {
         }
 
         addUser(userId, socket.id);
+        const peersIds = await peersIdList(userId);
+        const peersOnline = getUsersOnlineStatus(peersIds);
+
+        socket.emit('peersOnline', peersOnline);
 
         console.log('USERS after join:', getUsers());
         console.log('USER_SOCKETS after join:', getUserSockets());

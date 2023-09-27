@@ -3,13 +3,17 @@ import { useSelector } from 'react-redux';
 
 import './chat.scss';
 
-const { userStatus } = require('../../../../utils/helper.util');
-
 const Chat = ({ chat, click }) => {
-  const currentChat = useSelector((state) => state.chat.currentChat);
   const currentUser = useSelector((state) => state.auth.user);
+  const currentChat = useSelector((state) => state.chat.currentChat);
+  const peersOnline = useSelector((state) => state.chat.peersOnline);
+
   const isChatOpened = () => {
     return currentChat._id === chat._id ? 'opened' : '';
+  };
+
+  const userStatus = (userId) => {
+    return peersOnline[userId] ? 'online' : 'offline';
   };
 
   const lastMessage = (msg) => {
@@ -39,7 +43,9 @@ const Chat = ({ chat, click }) => {
         </div>
       </div>
       <div className="friend-status">
-        <span className={`online-status ${userStatus(chat.isOnline)}`}></span>
+        <span
+          className={`online-status ${userStatus(chat.users[0]._id)}`}
+        ></span>
       </div>
     </div>
   );

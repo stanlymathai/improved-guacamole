@@ -66,6 +66,24 @@ async function createOrUpdateConversation(currentUser, partnerUser) {
   );
 }
 
+async function peersIdList(userId) {
+  const conversations = await Conversation.find({
+    participants: { $in: [userId] },
+  }).select('participants');
+
+  const userIds = new Set();
+
+  conversations.forEach((conversation) => {
+    conversation.participants.forEach((participant) => {
+      if (participant.toString() !== userId.toString()) {
+        userIds.add(participant.toString());
+      }
+    });
+  });
+
+  return [...userIds];
+}
+
 async function doesConversationExist(chatId) {
   return await Conversation.exists({ _id: chatId });
 }
@@ -74,4 +92,5 @@ module.exports = {
   createOrUpdateConversation,
   doesConversationExist,
   getUserConversations,
+  peersIdList,
 };

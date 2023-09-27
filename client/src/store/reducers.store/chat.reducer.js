@@ -3,6 +3,7 @@ import * as types from '../types.store/chat.type';
 const initialState = {
   chats: [],
   socket: {},
+  peersOnline: {},
   currentChat: {},
   currentChatMessages: [],
   currentChatPagination: {},
@@ -16,6 +17,12 @@ const chatReducer = (state = initialState, action) => {
       return {
         ...state,
         chats: payload,
+      };
+
+    case types.PEERS_ONLINE:
+      return {
+        ...state,
+        peersOnline: payload,
       };
 
     case types.SET_CURRENT_CHAT:

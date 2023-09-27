@@ -43,6 +43,10 @@ export const setSocket = (socket) => (dispatch) => {
   dispatch({ type: types.SET_SOCKET, payload: socket });
 };
 
+export const peersOnline = (peers) => (dispatch) => {
+  dispatch({ type: types.PEERS_ONLINE, payload: peers });
+};
+
 export const incrementScroll = () => (dispatch) => {
   dispatch({ type: types.INCREMENT_SCROLL });
 };

@@ -1,7 +1,6 @@
 const USERS = new Map();
 const USER_SOCKETS = new Map();
 
-let ioInstance;
 /**
  * Adds a user to the USERS map and associates the socket ID with the user.
  * @param {string} userId - The ID of the user.
@@ -12,7 +11,6 @@ const addUser = (userId, socketId) => {
   user.sockets.add(socketId);
   USERS.set(userId, user);
   USER_SOCKETS.set(socketId, userId);
-  ioInstance.emit('userStatusChanged', { userId, isOnline: true });
 };
 
 const removeUser = (socketId) => {
@@ -24,7 +22,6 @@ const removeUser = (socketId) => {
 
       if (user.sockets.size === 0) {
         USERS.delete(userId);
-        ioInstance.emit('userStatusChanged', { userId, isOnline: false });
       }
     }
 
@@ -52,15 +49,18 @@ const isUserOnline = (userId) => {
   return false;
 };
 
-module.exports = (io) => {
-  ioInstance = io;
+const getUsersOnlineStatus = (userIds) => {
+  return userIds.reduce((acc, userId) => {
+    acc[userId] = isUserOnline(userId);
+    return acc;
+  }, {});
+};
 
-  return {
-    addUser,
-    getUsers,
-    removeUser,
-    isUserOnline,
-    getUserSockets,
-    getUserBySocketId,
-  };
+module.exports = {
+  addUser,
+  getUsers,
+  removeUser,
+  getUserSockets,
+  getUserBySocketId,
+  getUsersOnlineStatus,
 };

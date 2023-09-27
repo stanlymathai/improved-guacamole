@@ -2,7 +2,10 @@ import { useEffect } from 'react';
 
 import socketIOClient from 'socket.io-client';
 
-import { setSocket } from '../../../store/actions.store/chat.action';
+import {
+  setSocket,
+  peersOnline,
+} from '../../../store/actions.store/chat.action';
 
 function useSocket(payload, dispatch) {
   useEffect(() => {
@@ -12,6 +15,10 @@ function useSocket(payload, dispatch) {
       dispatch(setSocket(socket));
 
       socket.emit('join', payload);
+    });
+
+    socket.on('peersOnline', (peers) => {
+      dispatch(peersOnline(peers));
     });
 
     socket.on('error', (error) => {
