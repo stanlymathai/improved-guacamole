@@ -1,5 +1,6 @@
-const USERS = new Map();
-const USER_SOCKETS = new Map();
+const jwt = require('jsonwebtoken');
+const { app_key } = require('../configs/env.config/app.env');
+const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 const socketServer = (server) => {
   const io = require('socket.io')(server, {
@@ -9,48 +10,42 @@ const socketServer = (server) => {
     },
   });
 
-  io.on('connection', (socket) => {
-    socket.on('join', async (userId) => {
-      console.log('userId knri => join event', userId);
-      let sockets = [];
+  const { addUser, removeUser, getUsers, getUserSockets } =
+    require('./userManager.socket')(io);
 
-      if (USERS.has(userId)) {
-        const existingUser = USERS.get(userId);
-        existingUser.sockets = [...existingUser.sockets, ...[socket.id]];
-        USERS.set(userId, existingUser);
-        sockets = [...existingUser.sockets, ...[socket.id]];
-        USER_SOCKETS.set(socket.id, userId);
-      } else {
-        USERS.set(userId, { id: userId, sockets: [socket.id] });
-        sockets.push(socket.id);
-        USER_SOCKETS.set(socket.id, userId);
+  io.on('connection', (socket) => {
+    socket.on('join', async (data) => {
+      const { id: userId, token } = data;
+
+      try {
+        const decoded = jwt.verify(token, app_key);
+
+        const { secretOrKey } = decoded;
+
+        if (!secretOrKey) {
+          throw new Error('Invalid token');
+        }
+
+        const currentUser = await validateAndGetUser(null, null, secretOrKey);
+
+        if (String(currentUser._id) !== String(userId)) {
+          throw new Error('Invalid token');
+        }
+
+        addUser(userId, socket.id);
+
+        console.log('USERS after join:', getUsers());
+        console.log('USER_SOCKETS after join:', getUserSockets());
+      } catch (error) {
+        socket.emit('error', { message: error.message });
+        socket.disconnect();
       }
-      console.log('user knri => join event => USERS', USERS);
-      console.log('user knri => join event => USER_SOCKETS', USER_SOCKETS);
     });
 
-    socket.on('disconnect', async () => {
-      if (USER_SOCKETS.has(socket.id)) {
-        const user = USERS.get(USER_SOCKETS.get(socket.id));
-        if (user.sockets.length > 1) {
-          user.sockets = user.sockets.filter((sock) => {
-            if (sock !== socket.id) return true;
-
-            USER_SOCKETS.delete(sock);
-            return false;
-          });
-
-          USERS.set(user.id, user);
-        } else {
-          USER_SOCKETS.delete(socket.id);
-          USERS.delete(user.id);
-        }
-        console.log('user knri => disconnect event => USERS', USERS);
-        console.log(
-          'user knri => disconnect event => USER_SOCKETS',
-          USER_SOCKETS
-        );
-      }
+    socket.on('disconnect', () => {
+      removeUser(socket.id);
+      console.log('USERS after disconnect:', getUsers());
+      console.log('USER_SOCKETS after disconnect:', getUserSockets());
     });
   });
 };

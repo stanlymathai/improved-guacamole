@@ -14,7 +14,9 @@ const Chat = () => {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
-  useSocket(user.id, dispatch);
+  const token = useSelector((state) => state.auth.token);
+
+  useSocket({ id: user.id, token }, dispatch);
 
   useEffect(() => {
     dispatch(fetchChats());

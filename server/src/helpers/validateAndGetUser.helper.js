@@ -1,11 +1,15 @@
 const USER = require('../models/user.model');
 
-async function validateAndGetUser(userId, req) {
+async function validateAndGetUser(userId, req, secretOrKey) {
   const searchParams = {};
 
   if (userId) {
     searchParams._id = userId;
-  } else searchParams.secretOrKey = req.user.secretOrKey;
+  } else if (req && req.user) {
+    searchParams.secretOrKey = req.user.secretOrKey;
+  } else if (secretOrKey) {
+    searchParams.secretOrKey = secretOrKey;
+  }
 
   const user = await USER.findOne(searchParams);
 
