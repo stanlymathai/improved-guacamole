@@ -1,13 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Modal from '../modal.element';
 import './chatHeader.scss';
 
 const ChatHeader = ({ chat }) => {
-  const peersOnline = useSelector((state) => state.chat.peersOnline);
-
   const [showChatOptions, setShowChatOptions] = useState(false);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -28,8 +25,8 @@ const ChatHeader = ({ chat }) => {
     console.log('deleteChat');
   };
 
-  const userStatus = (userId) => {
-    return peersOnline[userId] ? 'online' : 'offline';
+  const userStatus = (isOnline) => {
+    return isOnline ? 'online' : 'offline';
   };
 
   return (
@@ -43,7 +40,7 @@ const ChatHeader = ({ chat }) => {
               </h3>
               <div className="chatter-status">
                 <span
-                  className={`online-status ${userStatus(user._id)}`}
+                  className={`online-status ${userStatus(user.isOnline)}`}
                 ></span>
               </div>
             </div>

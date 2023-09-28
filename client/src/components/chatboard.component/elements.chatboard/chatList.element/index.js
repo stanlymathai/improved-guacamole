@@ -45,7 +45,9 @@ const ChatList = () => {
   };
 
   const addNewFriend = (id) => {
-    dispatch(createChat(id)).then(() => {
+    dispatch(createChat(id)).then((res) => {
+      console.log('res knri', res);
+
       dispatch(fetchChats());
       setShowFriendsModal(false);
     });
@@ -81,6 +83,7 @@ const ChatList = () => {
               onInput={(e) => searchFriends(e)}
               type="text"
               placeholder="Search..."
+              autoFocus
             />
             <div id="suggestions">
               {suggestions.map((user) => {

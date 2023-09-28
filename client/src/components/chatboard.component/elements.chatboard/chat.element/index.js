@@ -6,14 +6,13 @@ import './chat.scss';
 const Chat = ({ chat, click }) => {
   const currentUser = useSelector((state) => state.auth.user);
   const currentChat = useSelector((state) => state.chat.currentChat);
-  const peersOnline = useSelector((state) => state.chat.peersOnline);
 
   const isChatOpened = () => {
     return currentChat._id === chat._id ? 'opened' : '';
   };
 
-  const userStatus = (userId) => {
-    return peersOnline[userId] ? 'online' : 'offline';
+  const userStatus = (isOnline) => {
+    return isOnline ? 'online' : 'offline';
   };
 
   const lastMessage = (msg) => {
@@ -44,7 +43,7 @@ const Chat = ({ chat, click }) => {
       </div>
       <div className="friend-status">
         <span
-          className={`online-status ${userStatus(chat.users[0]._id)}`}
+          className={`online-status ${userStatus(chat.users[0].isOnline)}`}
         ></span>
       </div>
     </div>

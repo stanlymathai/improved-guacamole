@@ -49,13 +49,6 @@ const isUserOnline = (userId) => {
   return false;
 };
 
-const getUsersOnlineStatus = (userIds) => {
-  return userIds.reduce((acc, userId) => {
-    acc[userId] = isUserOnline(userId);
-    return acc;
-  }, {});
-};
-
 module.exports = {
   addUser,
   getUsers,
@@ -63,5 +56,4 @@ module.exports = {
   isUserOnline,
   getUserSockets,
   getUserBySocketId,
-  getUsersOnlineStatus,
 };

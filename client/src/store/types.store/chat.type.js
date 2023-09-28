@@ -3,7 +3,6 @@ export const FETCH_MESSAGES = 'FETCH_MESSAGES';
 export const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
 
 export const SET_SOCKET = 'SET_SOCKET';
-export const PEERS_ONLINE = 'PEERS_ONLINE';
 
 export const FRIEND_ONLINE = 'FRIEND_ONLINE';
 export const FRIEND_OFFLINE = 'FRIEND_OFFLINE';

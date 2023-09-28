@@ -3,7 +3,7 @@ const Conversation = require('../models/conversation.model');
 const { isUserOnline } = require('../socket/userManager.socket');
 
 async function getUserConversations(userId) {
-  return Conversation.aggregate([
+  const conversations = await Conversation.aggregate([
     { $match: { participants: { $in: [userId] } } },
     { $sort: { updatedAt: -1 } },
     {
@@ -12,6 +12,7 @@ async function getUserConversations(userId) {
         pipeline: [
           { $match: { _id: { $ne: userId } } },
           { $project: { firstName: 1, lastName: 1, avatar: 1 } },
+          { $addFields: { isTyping: false } },
         ],
         localField: 'participants',
         foreignField: '_id',
@@ -19,7 +20,6 @@ async function getUserConversations(userId) {
       },
     },
     { $project: { participants: 0 } },
-
     {
       $lookup: {
         from: 'messages',
@@ -45,6 +45,15 @@ async function getUserConversations(userId) {
     },
     { $unwind: { path: '$lastMessage', preserveNullAndEmptyArrays: true } },
   ]);
+
+  // Add the online status for each user in the conversations
+  for (let conversation of conversations) {
+    for (let user of conversation.users) {
+      user.isOnline = isUserOnline(user._id.toString());
+    }
+  }
+
+  return conversations;
 }
 
 async function createOrUpdateConversation(currentUser, partnerUser) {
