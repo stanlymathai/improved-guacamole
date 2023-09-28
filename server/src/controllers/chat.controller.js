@@ -4,6 +4,7 @@ const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
 const {
+  getConversationById,
   getUserConversations,
   createOrUpdateConversation,
 } = require('../services/chat.service');
@@ -33,8 +34,12 @@ async function initiateOrUpdateConversation(req, res) {
       currentUser,
       partnerUser
     );
+    const response = await getConversationById(
+      conversation._id,
+      currentUser._id
+    );
 
-    return res.json({ success: true, data: conversation });
+    return res.json({ success: true, data: response });
   } catch (error) {
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,

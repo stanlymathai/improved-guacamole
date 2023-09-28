@@ -60,6 +60,7 @@ module.exports = {
   addUser,
   getUsers,
   removeUser,
+  isUserOnline,
   getUserSockets,
   getUserBySocketId,
   getUsersOnlineStatus,
