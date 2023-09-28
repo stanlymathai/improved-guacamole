@@ -13,10 +13,9 @@ import './chatboard.scss';
 const Chat = () => {
   const dispatch = useDispatch();
 
-  const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
-  useSocket({ id: user.id, token }, dispatch);
+  useSocket({ token }, dispatch);
 
   useEffect(() => {
     dispatch(fetchChats());
