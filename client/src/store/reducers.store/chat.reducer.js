@@ -40,6 +40,26 @@ const chatReducer = (state = initialState, action) => {
       };
     }
 
+    case types.HANDLE_DISCONNECT: {
+      const { chats } = state;
+
+      const chatsCopy = chats.map((chat) => {
+        const users = chat.users.map((user) => {
+          if (user._id === payload) {
+            return { ...user, isOnline: false };
+          }
+          return user;
+        });
+
+        return { ...chat, users };
+      });
+
+      return {
+        ...state,
+        chats: chatsCopy,
+      };
+    }
+
     case types.PAGINATE_MESSAGES: {
       const { messages, id, pagination } = payload;
 

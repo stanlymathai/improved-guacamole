@@ -49,11 +49,36 @@ const isUserOnline = (userId) => {
   return false;
 };
 
+const removeUserAndGetId = (socketId) => {
+  const userId = USER_SOCKETS.get(socketId);
+  if (userId) {
+    const user = USERS.get(userId);
+    if (user) {
+      user.sockets.delete(socketId);
+
+      if (user.sockets.size === 0) {
+        USERS.delete(userId);
+      }
+    }
+
+    USER_SOCKETS.delete(socketId);
+    return userId;
+  }
+  return null;
+};
+
+const getUserSocketIds = (userId) => {
+  const user = USERS.get(userId);
+  return user ? user.sockets : null;
+};
+
 module.exports = {
   addUser,
   getUsers,
   removeUser,
   isUserOnline,
   getUserSockets,
+  getUserSocketIds,
   getUserBySocketId,
+  removeUserAndGetId,
 };

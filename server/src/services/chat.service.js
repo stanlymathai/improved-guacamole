@@ -77,7 +77,7 @@ async function createOrUpdateConversation(currentUser, partnerUser) {
   );
 }
 
-async function peersIdList(userId) {
+async function getPeersIdList(userId) {
   const conversations = await Conversation.find({
     participants: { $in: [userId] },
   }).select('participants');
@@ -163,5 +163,5 @@ module.exports = {
   doesConversationExist,
   getUserConversations,
   getConversationById,
-  peersIdList,
+  getPeersIdList,
 };

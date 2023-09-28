@@ -35,6 +35,10 @@ export const createChat = (partnerId) => async (dispatch) => {
   }
 };
 
+export const handleDisconnect = (userId) => (dispatch) => {
+  dispatch({ type: types.HANDLE_DISCONNECT, payload: userId });
+};
+
 export const setCurrentChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };

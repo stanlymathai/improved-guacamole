@@ -10,7 +10,7 @@ const socketServer = (server) => {
 
   io.on('connection', (socket) => {
     socket.on('join', (data) => handleJoin(socket, data));
-    socket.on('disconnect', () => handleDisconnect(socket));
+    socket.on('disconnect', () => handleDisconnect(socket, io));
   });
 };
 

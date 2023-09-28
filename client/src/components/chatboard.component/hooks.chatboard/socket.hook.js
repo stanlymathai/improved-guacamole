@@ -2,16 +2,24 @@ import { useEffect } from 'react';
 
 import socketIOClient from 'socket.io-client';
 
-import { setSocket } from '../../../store/actions.store/chat.action';
+import {
+  setSocket,
+  handleDisconnect,
+} from '../../../store/actions.store/chat.action';
 
 function useSocket(payload, dispatch) {
   useEffect(() => {
     const socket = socketIOClient('http://localhost:8080');
 
     socket.on('connect', () => {
-      dispatch(setSocket(socket));
-
       socket.emit('join', payload);
+      dispatch(setSocket(socket));
+    });
+
+    socket.on('friendDisconnected', (data) => {
+      const { userId } = data;
+
+      dispatch(handleDisconnect(userId));
     });
 
     socket.on('error', (error) => {
