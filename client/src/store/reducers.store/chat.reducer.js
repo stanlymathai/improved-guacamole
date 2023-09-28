@@ -40,23 +40,25 @@ const chatReducer = (state = initialState, action) => {
       };
     }
 
-    case types.HANDLE_DISCONNECT: {
+    case types.HANDLE_CONNECTION: {
       const { chats } = state;
+      const { userId, type } = payload;
 
-      const chatsCopy = chats.map((chat) => {
-        const users = chat.users.map((user) => {
-          if (user._id === payload) {
-            return { ...user, isOnline: false };
-          }
-          return user;
-        });
+      if (!['connected', 'disconnected'].includes(type)) return state;
 
-        return { ...chat, users };
+      const isOnline = type === 'connected';
+
+      const updatedChats = chats.map((chat) => {
+        const updatedUsers = chat.users.map((user) =>
+          user._id === userId ? { ...user, isOnline } : user
+        );
+
+        return { ...chat, users: updatedUsers };
       });
 
       return {
         ...state,
-        chats: chatsCopy,
+        chats: updatedChats,
       };
     }
 

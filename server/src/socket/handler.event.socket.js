@@ -9,20 +9,31 @@ const {
 const { getPeersIdList } = require('../services/chat.service');
 const { handleSocketError, validateToken } = require('./helper.socket');
 
-/**
- * Handle the joining of a user to the socket server.
- * Validates the provided token, adds the user to the manager.
- *
- * @param {Object} socket - The connected socket object.
- * @param {Object} data - Data provided during the join event.
- */
-async function handleJoin(socket, data) {
+async function handleJoin(socket, data, io) {
   const { token } = data;
 
   try {
     const userId = await validateToken(token);
 
     addUser(userId, socket.id);
+
+    // Fetch the list of online friends for the connected user
+    const friendsIds = await getPeersIdList(userId);
+
+    // For each friend, check if they are online and send them a message
+    friendsIds.forEach((friendId) => {
+      const friendSocketIds = getUserSocketIds(friendId);
+
+      if (friendSocketIds && friendSocketIds.size > 0) {
+        friendSocketIds.forEach((friendSocketId) => {
+          // Notify the specific friend about the user's connection
+          io.to(friendSocketId).emit('peerStatusChange', {
+            type: 'connected',
+            userId,
+          });
+        });
+      }
+    });
 
     console.log('USERS after join:', getUsers());
     console.log('USER_SOCKETS after join:', getUserSockets());
@@ -45,8 +56,9 @@ async function handleDisconnect(socket, io) {
       if (friendSocketIds && friendSocketIds.size > 0) {
         friendSocketIds.forEach((friendSocketId) => {
           // Notify the specific friend about the user's disconnection
-          io.to(friendSocketId).emit('friendDisconnected', {
+          io.to(friendSocketId).emit('peerStatusChange', {
             userId: disconnectedUserId,
+            type: 'disconnected',
           });
         });
       }

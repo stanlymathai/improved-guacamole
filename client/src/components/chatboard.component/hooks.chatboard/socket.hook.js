@@ -4,7 +4,7 @@ import socketIOClient from 'socket.io-client';
 
 import {
   setSocket,
-  handleDisconnect,
+  handlePeerStatusChange,
 } from '../../../store/actions.store/chat.action';
 
 function useSocket(payload, dispatch) {
@@ -16,10 +16,9 @@ function useSocket(payload, dispatch) {
       dispatch(setSocket(socket));
     });
 
-    socket.on('friendDisconnected', (data) => {
-      const { userId } = data;
-
-      dispatch(handleDisconnect(userId));
+    socket.on('peerStatusChange', (data) => {
+      const { userId, type } = data;
+      dispatch(handlePeerStatusChange(userId, type));
     });
 
     socket.on('error', (error) => {

@@ -9,7 +9,7 @@ const socketServer = (server) => {
   });
 
   io.on('connection', (socket) => {
-    socket.on('join', (data) => handleJoin(socket, data));
+    socket.on('join', (data) => handleJoin(socket, data, io));
     socket.on('disconnect', () => handleDisconnect(socket, io));
   });
 };
