@@ -22,8 +22,8 @@ const ChatList = () => {
   const [suggestions, setSuggestions] = useState([]);
 
   // handler fn's
-  const openChat = (chat) => {
-    dispatch(setCurrentChat(chat));
+  const openChat = (chatId) => {
+    dispatch(setCurrentChat(chatId));
   };
 
   function existingUserIds(chats) {
@@ -45,8 +45,7 @@ const ChatList = () => {
   };
 
   const addNewFriend = (id) => {
-    dispatch(createChat(id)).then((res) => {
-
+    dispatch(createChat(id)).then(() => {
       dispatch(fetchChats());
       setShowFriendsModal(false);
     });
@@ -64,7 +63,9 @@ const ChatList = () => {
       <div id="friends-box">
         {chats.length > 0 ? (
           chats.map((el) => {
-            return <Chat chat={el} key={el._id} click={() => openChat(el)} />;
+            return (
+              <Chat chat={el} key={el._id} click={() => openChat(el._id)} />
+            );
           })
         ) : (
           <p id="no-chat">No friends added</p>

@@ -1,7 +1,5 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-
-import { fetchMessages } from '../../../../store/actions.store/chat.action';
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 import ChatHeader from '../chatHeader.element';
 import MessageBox from '../messageBox.element';
@@ -10,23 +8,19 @@ import MessageInput from '../messageInput.element';
 import './messenger.scss';
 
 const Messenger = () => {
-  const dispatch = useDispatch();
+  const chats = useSelector((state) => state.chat.chats);
+  const currentUser = useSelector((state) => state.auth.user);
   const currentChat = useSelector((state) => state.chat.currentChat);
-
-  useEffect(() => {
-    const chatId = currentChat._id;
-    if (!chatId) return;
-    dispatch(fetchMessages(chatId)).catch((e) => console.error(e));
-  }, [currentChat, dispatch]);
+  const selectedChat = chats.find((chat) => chat._id === currentChat);
 
   return (
     <div id="messenger" className="shadow-light">
-      {currentChat._id ? (
+      {currentChat ? (
         <div id="messenger-wrap">
-          <ChatHeader chat={currentChat} />
+          <ChatHeader chat={selectedChat} />
           <hr />
-          <MessageBox />
-          <MessageInput chat={currentChat} />
+          <MessageBox chat={currentChat} user={currentUser} />
+          <MessageInput />
         </div>
       ) : (
         <p>No active chat</p>

@@ -8,7 +8,7 @@ const Chat = ({ chat, click }) => {
   const currentChat = useSelector((state) => state.chat.currentChat);
 
   const isChatOpened = () => {
-    return currentChat._id === chat._id ? 'opened' : '';
+    return currentChat === chat._id ? 'opened' : '';
   };
 
   const userStatus = (isOnline) => {

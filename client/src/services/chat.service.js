@@ -10,15 +10,19 @@ const chatService = {
     }
   },
 
-  fetchMessages: async (chatId) => {
+  fetchMessages: async (id, page) => {
     try {
-      const { data } = await HTTP.get(`/chats/fetch?id=${chatId}`);
+      const { data } = await HTTP.get('/chats/fetch', {
+        params: {
+          id,
+          page,
+        },
+      });
       return data;
     } catch (err) {
       throw err;
     }
   },
-
   searchUsers: async (query, idString) => {
     try {
       const { data } = await HTTP.get('/users/', {
@@ -58,50 +62,6 @@ const chatService = {
     return HTTP.post('/chats/upload-image', data, headers)
       .then(({ data }) => {
         return data.url;
-      })
-      .catch((err) => {
-        throw err;
-      });
-  },
-
-  paginateMessages: async (id, page) => {
-    try {
-      const { data } = await HTTP.get('/chats/messages', {
-        params: {
-          id,
-          page,
-        },
-      });
-      return data;
-    } catch (err) {
-      throw err;
-    }
-  },
-
-  addFriendToGroupChat: (userId, chatId) => {
-    return HTTP.post('/chats/add-user-to-group', { userId, chatId })
-      .then(({ data }) => {
-        return data;
-      })
-      .catch((err) => {
-        throw err;
-      });
-  },
-
-  leaveCurrentChat: (chatId) => {
-    return HTTP.post('/chats/leave-current-chat', { chatId })
-      .then(({ data }) => {
-        return data;
-      })
-      .catch((err) => {
-        throw err;
-      });
-  },
-
-  deleteCurrentChat: (chatId) => {
-    return HTTP.delete(`/chats/${chatId}`)
-      .then(({ data }) => {
-        return data;
       })
       .catch((err) => {
         throw err;

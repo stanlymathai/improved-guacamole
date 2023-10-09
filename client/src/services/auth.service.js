@@ -35,6 +35,7 @@ const authService = {
     HTTP.defaults.headers['Authorization'] = '';
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    window.location.reload();
   },
 
   updateProfile: async (data) => {

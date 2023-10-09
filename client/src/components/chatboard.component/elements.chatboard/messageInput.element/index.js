@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { incrementScroll } from '../../../../store/actions.store/chat.action';
 import chatService from '../../../../services/chat.service';
 
 import data from '@emoji-mart/data';
@@ -111,7 +110,6 @@ const MessageInput = ({ chat }) => {
   };
 
   const showNewMessage = () => {
-    dispatch(incrementScroll());
     setShowNewMessageNotification(false);
   };
 
