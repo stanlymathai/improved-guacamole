@@ -1,7 +1,5 @@
 const {
   addUser,
-  getUsers,
-  getUserSockets,
   getUserSocketIds,
   removeUserAndGetId,
 } = require('./userManager.socket');
@@ -15,28 +13,22 @@ async function handleJoin(socket, data, io) {
   try {
     const userId = await validateToken(token);
 
+    // Add the user to their unique room
+    socket.join(String(userId));
+
     addUser(userId, socket.id);
 
     // Fetch the list of online friends for the connected user
     const friendsIds = await getPeersIdList(userId);
 
-    // For each friend, check if they are online and send them a message
+    // For each friend, notify them about the user's connection
     friendsIds.forEach((friendId) => {
-      const friendSocketIds = getUserSocketIds(friendId);
-
-      if (friendSocketIds && friendSocketIds.size > 0) {
-        friendSocketIds.forEach((friendSocketId) => {
-          // Notify the specific friend about the user's connection
-          io.to(friendSocketId).emit('peerStatusChange', {
-            type: 'connected',
-            userId,
-          });
-        });
-      }
+      // Notify the specific friend about the user's connection
+      io.to(String(friendId)).emit('peerStatusChange', {
+        type: 'connected',
+        userId,
+      });
     });
-
-    console.log('USERS after join:', getUsers());
-    console.log('USER_SOCKETS after join:', getUserSockets());
   } catch (error) {
     handleSocketError(socket, error);
   }
@@ -48,25 +40,21 @@ async function handleDisconnect(socket, io) {
   if (disconnectedUserId) {
     // Check if the user has any other active sockets
     const remainingSockets = getUserSocketIds(disconnectedUserId);
-
+    // Only notify friends if the user has no more active sockets
     if (!remainingSockets || remainingSockets.size === 0) {
+      // Fetch the list of online friends for the disconnected user
       const friendsIds = await getPeersIdList(disconnectedUserId);
 
+      // For each friend, notify them about the user's disconnection
       friendsIds.forEach((friendId) => {
-        const friendSocketIds = getUserSocketIds(friendId);
-        if (friendSocketIds && friendSocketIds.size > 0) {
-          friendSocketIds.forEach((friendSocketId) => {
-            io.to(friendSocketId).emit('friendDisconnected', {
-              userId: disconnectedUserId,
-            });
-          });
-        }
+        // Notify the specific friend about the user's disconnection
+        io.to(String(friendId)).emit('peerStatusChange', {
+          userId: disconnectedUserId,
+          type: 'disconnected',
+        });
       });
     }
   }
-
-  console.log('USERS after disconnect:', getUsers());
-  console.log('USER_SOCKETS after disconnect:', getUserSockets());
 }
 
 module.exports = {

@@ -29,10 +29,6 @@ const removeUser = (socketId) => {
   }
 };
 
-const getUsers = () => new Map(USERS);
-
-const getUserSockets = () => new Map(USER_SOCKETS);
-
 const getUserBySocketId = (socketId) => {
   const userId = USER_SOCKETS.get(socketId);
   if (userId) {
@@ -74,10 +70,8 @@ const getUserSocketIds = (userId) => {
 
 module.exports = {
   addUser,
-  getUsers,
   removeUser,
   isUserOnline,
-  getUserSockets,
   getUserSocketIds,
   getUserBySocketId,
   removeUserAndGetId,

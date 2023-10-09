@@ -46,7 +46,6 @@ const ChatList = () => {
 
   const addNewFriend = (id) => {
     dispatch(createChat(id)).then((res) => {
-      console.log('res knri', res);
 
       dispatch(fetchChats());
       setShowFriendsModal(false);
