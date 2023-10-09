@@ -4,8 +4,6 @@ const initialState = {
   chats: [],
   socket: {},
   currentChat: null,
-  currentChatMessages: [],
-  currentChatPagination: {},
 };
 
 const chatReducer = (state = initialState, action) => {

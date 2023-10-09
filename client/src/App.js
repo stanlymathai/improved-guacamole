@@ -1,9 +1,4 @@
-import React, { useState } from 'react';
-
-import Login from './components/auth.component/Login';
-import Register from './components/auth.component/Register';
-
-import Chatboard from './components/chatboard.component';
+import React, { useState, Suspense, lazy } from 'react';
 
 import './App.scss';
 
@@ -20,6 +15,12 @@ import {
   faTimes,
   faBell,
 } from '@fortawesome/free-solid-svg-icons';
+
+// Components
+const Login = lazy(() => import('./components/auth.component/Login'));
+const Register = lazy(() => import('./components/auth.component/Register'));
+const Chatboard = lazy(() => import('./components/chatboard.component'));
+
 library.add(
   faSmile,
   faImage,
@@ -34,14 +35,34 @@ library.add(
   faBell
 );
 
+const MODES = {
+  LOGIN: 'login',
+  REGISTER: 'register',
+  CHATBOARD: 'chatboard',
+};
+
 function App() {
-  const [mode, setMode] = useState('login'); // login, register, chatboard
+  const [mode, setMode] = useState(MODES.LOGIN);
+
+  let ComponentToRender;
+
+  switch (mode) {
+    case MODES.LOGIN:
+      ComponentToRender = <Login setMode={setMode} />;
+      break;
+    case MODES.REGISTER:
+      ComponentToRender = <Register setMode={setMode} />;
+      break;
+    case MODES.CHATBOARD:
+      ComponentToRender = <Chatboard setMode={setMode} />;
+      break;
+    default:
+      ComponentToRender = null;
+  }
 
   return (
     <div className="App">
-      {mode === 'login' && <Login setMode={setMode} />}
-      {mode === 'register' && <Register setMode={setMode} />}
-      {mode === 'chatboard' && <Chatboard setMode={setMode} />}
+      <Suspense fallback={<p>Loading...</p>}>{ComponentToRender}</Suspense>
     </div>
   );
 }

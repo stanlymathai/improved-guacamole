@@ -1,6 +1,8 @@
 const Message = require('../models/message.model');
 const Conversation = require('../models/conversation.model');
 
+const ERROR_MESSAGES = require('../utils/errorMessage.util');
+
 async function fetchPaginatedMessages(chatId, page, limit) {
   const options = {
     page: page,
