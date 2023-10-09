@@ -12,66 +12,68 @@ const MessageBox = ({ chat, user }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const messagesEndRef = useRef(null);
+  const messageBoxRef = useRef(null);
+
+  const loadMessages = (chatId, pageNum) => {
+    setLoading(true);
+    chatService
+      .fetchMessages(chatId, pageNum)
+      .then((res) => {
+        if (res && res.success) {
+          if (pageNum === 1) {
+            setMessages(res.data);
+          } else {
+            setMessages((prevMessages) => [...res.data, ...prevMessages]);
+          }
+          setHasMore(res.pagination.hasNextPage);
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.error(e);
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     if (!chat) return;
 
     setMessages([]);
     setPage(1);
-
-    setLoading(true);
-    chatService
-      .fetchMessages(chat, page)
-      .then((res) => {
-        if (res && res.success) {
-          setMessages(res.data);
-          setHasMore(res.pagination.hasNextPage);
-        }
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        setLoading(false);
-      });
+    loadMessages(chat, 1);
   }, [chat]);
 
   useEffect(() => {
     if (!chat || page === 1) return;
+    loadMessages(chat, page);
+  }, [page]);
 
-    setLoading(true);
-    chatService
-      .fetchMessages(chat, page)
-      .then((res) => {
-        if (res && res.success) {
-          setMessages((prevMessages) => [...res.data, ...prevMessages]);
-          setHasMore(res.pagination.hasNextPage);
-        }
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        setLoading(false);
-      });
-  }, [page]); 
-  
-  const handleLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
+  useEffect(() => {
+    const handleScroll = (e) => {
+      if (e.target.scrollTop === 0 && hasMore) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    const element = messageBoxRef.current;
+    element.addEventListener('scroll', handleScroll);
+
+    return () => {
+      element.removeEventListener('scroll', handleScroll);
+    };
+  }, [hasMore]);
 
   return (
-    <div id="msg-box">
+    <div id="msg-box" ref={messageBoxRef}>
       {loading ? (
         <p className="loader m-0">
           <FontAwesomeIcon icon="spinner" className="fa-spin" />
         </p>
       ) : (
         <>
-          {hasMore && <button onClick={handleLoadMore}>Load More</button>}
           {messages.map((message) => (
             <Message message={message} key={message._id} user={user} />
           ))}
-          <div ref={messagesEndRef} />
         </>
       )}
     </div>
