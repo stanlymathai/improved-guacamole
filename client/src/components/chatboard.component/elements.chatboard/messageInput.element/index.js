@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import chatService from '../../../../services/chat.service';
+import debounce from '../../../../utils/debounce.util';
 
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -17,6 +18,7 @@ const MessageInput = ({ chatId, socket, user, setMessages }) => {
   const [image, setImage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+  const activationThreshold = 3;
   const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -25,18 +27,8 @@ const MessageInput = ({ chatId, socket, user, setMessages }) => {
     };
   }, []);
 
-  function debounce(func, delay) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-  }
-
-  const activationThreshold = 3;
-
   // handler fn's
-  
+
   const handleOnBlur = () => {
     socket.emit('stopTyping', { chatId });
     clearTimeout(typingTimeoutRef.current);

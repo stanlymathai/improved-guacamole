@@ -9,12 +9,17 @@ import {
 } from '../../../store/actions.store/chat.action';
 
 import throttle from '../../../utils/throttle.util';
+import debounce from '../../../utils/debounce.util';
 
 function useSocket(payload, dispatch) {
   useEffect(() => {
     const socket = socketIOClient('http://localhost:8080');
 
     const throttledHandleTyping = throttle((data) => {
+      dispatch(handleTypingStatus(data));
+    }, 300);
+
+    const debouncedHandleStopTyping = debounce((data) => {
       dispatch(handleTypingStatus(data));
     }, 300);
 
@@ -33,7 +38,7 @@ function useSocket(payload, dispatch) {
     });
 
     socket.on('friendStopTyping', (data) => {
-      throttledHandleTyping({ ...data, isTyping: false });
+      debouncedHandleStopTyping({ ...data, isTyping: false });
     });
 
     socket.on('error', (error) => {

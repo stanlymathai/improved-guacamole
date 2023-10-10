@@ -22,7 +22,6 @@ async function handleJoin(socket, data, io) {
     // Fetch the list of online friends for the connected user
     const friendsIds = await getPeersIdList(userId);
 
-    // For each friend, notify them about the user's connection
     friendsIds.forEach((friendId) => {
       // Notify the specific friend about the user's connection
       io.to(String(friendId)).emit('peerStatusChange', {
@@ -43,12 +42,10 @@ async function handleDisconnect(socket, io) {
     const remainingSockets = getUserSocketIds(disconnectedUserId);
     // Only notify friends if the user has no more active sockets
     if (!remainingSockets || remainingSockets.size === 0) {
-      // Fetch the list of online friends for the disconnected user
       const friendsIds = await getPeersIdList(disconnectedUserId);
 
       // For each friend, notify them about the user's disconnection
       friendsIds.forEach((friendId) => {
-        // Notify the specific friend about the user's disconnection
         io.to(String(friendId)).emit('peerStatusChange', {
           userId: disconnectedUserId,
           type: 'disconnected',
@@ -68,14 +65,13 @@ async function handleTyping(socket, data, isTyping, io) {
 
   const userId = user.id;
 
-  // Fetch the list of online friends for the typing user
   const friendsIds = await getPeersIdList(userId).catch((err) => {
     console.error('Error fetching friends list:', err);
     return [];
   });
 
   // Emit event based on typing status
-  const event = isTyping ? 'friendTyping' : 'friendStoppedTyping';
+  const event = isTyping ? 'friendTyping' : 'friendStopTyping';
   friendsIds.forEach((friendId) => {
     io.to(String(friendId)).emit(event, { userId, chatId: data.chatId });
   });
