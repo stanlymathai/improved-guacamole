@@ -2,10 +2,11 @@
     scroll-behavior: auto;
     overflow-y: scroll;
     flex-grow: 2;
+    height: 0;
     margin-bottom: 10px;
 
     .other-person {
-        max-width: fit-content;
+        max-width: fit-content
     }
 
     .loader {

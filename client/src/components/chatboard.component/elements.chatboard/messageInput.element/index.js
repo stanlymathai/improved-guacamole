@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import chatService from '../../../../services/chat.service';
@@ -9,109 +9,89 @@ import Picker from '@emoji-mart/react';
 
 import './messageInput.scss';
 
-const MessageInput = ({ chat }) => {
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const newMessage = useSelector((state) => state.chat.newMessage);
-
+const MessageInput = ({ chatId, socket, user, setMessages }) => {
   const fileUpload = useRef();
   const msgInput = useRef();
 
   const [message, setMessage] = useState('');
   const [image, setImage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showNewMessageNotification, setShowNewMessageNotification] =
-    useState(false);
 
-  const handleMessage = (e) => {
-    const value = e.target.value;
-    setMessage(value);
+  const typingTimeoutRef = useRef(null);
 
-    // const receiver = {
-    //   chatId: chat.id,
-    //   fromUser: user,
-    //   toUserId: chat.Users.map((user) => user.id),
-    // };
+  useEffect(() => {
+    return () => {
+      clearTimeout(typingTimeoutRef.current);
+    };
+  }, []);
 
-    // if (value.length === 1) {
-    //   receiver.typing = true;
-    //   console.log('typing', receiver);
-    // }
+  function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
 
-    // if (value.length === 0) {
-    //   receiver.typing = false;
-    //   console.log('typing', receiver);
-    // }
+  const activationThreshold = 3;
 
-    // notify other users that this user is typing something
+  // handler fn's
+  
+  const handleOnBlur = () => {
+    socket.emit('stopTyping', { chatId });
+    clearTimeout(typingTimeoutRef.current);
   };
 
-  // temporary solution
+  // Debounced function to handle stop typing
+  const debouncedStopTyping = debounce(() => {
+    socket.emit('stopTyping', { chatId });
+  }, 2000);
+
   const handleOnChange = (e) => {
     const value = e.target.value;
     setMessage(value);
-    console.log('value', value);
+    debouncedHandleOnChange(value);
+
+    // Reset and start the debounced "stopTyping" timer
+    debouncedStopTyping();
   };
 
-  const handleOnKeyDown = (e) => {
-    const value = e.target.value;
-    if (value.length > 0) {
-      if (e.key === 'Enter') {
-        console.log('value knri', value);
-        console.log('chat knri', chat);
-        chatService.createNewMessage(chat._id, value).then((res) => {
-          console.log('res knri', res);
-          setMessage('');
-        });
-      }
+  const actualHandleOnChange = (value) => {
+    if (value.length >= activationThreshold) {
+      socket.emit('typing', { chatId });
     }
   };
 
-  const handleKeyDown = (e, imageUpload) => {
-    if (e.key === 'Enter') sendMessage(imageUpload);
-  };
+  const debouncedHandleOnChange = debounce(actualHandleOnChange, 300);
 
-  const sendMessage = (imageUpload) => {
-    if (message.length < 1 && !imageUpload) return;
+  const handleOnKeyDown = (e) => {
+    const value = e.target.value;
+    if (value.length > 0 && e.key === 'Enter') {
+      // Emit the stop typing event since a message was sent
+      socket.emit('stopTyping', { chatId });
 
-    const msg = {
-      type: imageUpload ? 'image' : 'text',
-      fromUser: user,
-      toUserId: chat.Users.map((user) => user.id),
-      chatId: chat.id,
-      message: imageUpload ? imageUpload : message,
-    };
-
-    setMessage('');
-    setImage('');
-    setShowEmojiPicker(false);
+      clearTimeout(typingTimeoutRef.current);
+      // console.log('chat knri', chat);
+      // chatService.createNewMessage(chat._id, value).then((res) => {
+      //   console.log('res knri', res);
+      //   setMessage('');
+      // });
+    }
   };
 
   const handleImageUpload = () => {
     const formData = new FormData();
-    formData.append('id', chat.id);
+    formData.append('chatId', chatId);
     formData.append('image', image);
 
     console.log('handleImageUpload', formData);
   };
 
-  const selectEmoji = (emoji) => {
-    const startPosition = msgInput.current.selectionStart;
-    const endPosition = msgInput.current.selectionEnd;
-    const emojiLength = emoji.native.length;
-    const value = msgInput.current.value;
-    setMessage(
-      value.substring(0, startPosition) +
-        emoji.native +
-        value.substring(endPosition, value.length)
-    );
-    msgInput.current.focus();
-    msgInput.current.selectionEnd = endPosition + emojiLength;
+  const showNewMessage = () => {
+    console.log('showNewMessage');
   };
 
-  const showNewMessage = () => {
-    setShowNewMessageNotification(false);
-  };
+  const showNewMessageNotification = false;
 
   return (
     <div id="input-container">
@@ -149,27 +129,16 @@ const MessageInput = ({ chat }) => {
         </div>
       </div>
       <div id="message-input">
-        {/* <input
+        <input
           ref={msgInput}
           value={message}
           type="text"
           placeholder="Message..."
-          onChange={(e) => handleMessage(e)}
-          onKeyDown={(e) => handleKeyDown(e, false)}
-        /> */}
-        <input
-          // ref={msgInput}
-          value={message}
-          type="text"
-          placeholder="Message..."
+          onBlur={handleOnBlur}
+          onKeyDown={(e) => handleOnKeyDown(e)}
           onChange={(e) => handleOnChange(e)}
-          onKeyDown={(e) => handleOnKeyDown(e, false)}
         />
-        <FontAwesomeIcon
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          icon={['far', 'smile']}
-          className="fa-icon"
-        />
+        <FontAwesomeIcon icon={['far', 'smile']} className="fa-icon" />
       </div>
 
       <input
@@ -182,10 +151,9 @@ const MessageInput = ({ chat }) => {
       {showEmojiPicker ? (
         <Picker
           data={data}
-          title="Pick your emoji..."
           emoji="point_up"
+          title="Pick your emoji..."
           style={{ position: 'absolute', bottom: '20px', right: '20px' }}
-          onSelect={selectEmoji}
         />
       ) : null}
     </div>

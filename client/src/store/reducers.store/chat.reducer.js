@@ -29,6 +29,27 @@ const chatReducer = (state = initialState, action) => {
       };
     }
 
+    case types.HANDLE_TYPING_STATUS: {
+      const { chatId, userId, isTyping } = payload;
+
+      const newChats = [...state.chats];
+      for (let i = 0; i < newChats.length; i++) {
+        if (newChats[i]._id === chatId) {
+          for (let j = 0; j < newChats[i].users.length; j++) {
+            if (newChats[i].users[j]._id === userId) {
+              newChats[i].users[j].isTyping = isTyping;
+              return {
+                ...state,
+                chats: newChats,
+              };
+            }
+          }
+        }
+      }
+
+      return state;
+    }
+
     case types.HANDLE_CONNECTION: {
       const { chats } = state;
       const { userId, type } = payload;

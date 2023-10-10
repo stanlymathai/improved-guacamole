@@ -1,6 +1,7 @@
 const {
   addUser,
   getUserSocketIds,
+  getUserBySocketId,
   removeUserAndGetId,
 } = require('./userManager.socket');
 
@@ -57,7 +58,31 @@ async function handleDisconnect(socket, io) {
   }
 }
 
+async function handleTyping(socket, data, isTyping, io) {
+  const user = getUserBySocketId(socket.id);
+
+  if (!user) {
+    handleSocketError(socket, 'Unable to determine user from socket');
+    return;
+  }
+
+  const userId = user.id;
+
+  // Fetch the list of online friends for the typing user
+  const friendsIds = await getPeersIdList(userId).catch((err) => {
+    console.error('Error fetching friends list:', err);
+    return [];
+  });
+
+  // Emit event based on typing status
+  const event = isTyping ? 'friendTyping' : 'friendStoppedTyping';
+  friendsIds.forEach((friendId) => {
+    io.to(String(friendId)).emit(event, { userId, chatId: data.chatId });
+  });
+}
+
 module.exports = {
   handleDisconnect,
+  handleTyping,
   handleJoin,
 };

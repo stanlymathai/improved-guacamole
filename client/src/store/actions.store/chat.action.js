@@ -22,6 +22,13 @@ export const createChat = (partnerId) => async (dispatch) => {
   }
 };
 
+export const handleTypingStatus = (data) => (dispatch) => {
+  dispatch({
+    type: types.HANDLE_TYPING_STATUS,
+    payload: data,
+  });
+};
+
 export const handlePeerStatusChange = (userId, type) => (dispatch) => {
   dispatch({ type: types.HANDLE_CONNECTION, payload: { userId, type } });
 };

@@ -6,9 +6,8 @@ import chatService from '../../../../services/chat.service';
 
 import './messageBox.scss';
 
-const MessageBox = ({ chat, user }) => {
+const MessageBox = ({ chat, user, messages, setMessages }) => {
   const [loading, setLoading] = useState(true);
-  const [messages, setMessages] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
