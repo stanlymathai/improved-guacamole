@@ -8,9 +8,16 @@ const userStatus = (isOnline) => {
 
 const lastMessage = (msg, currentUser) => {
   if (!msg) return '';
+
   const sender =
     msg.sender._id === currentUser.id ? 'You' : msg.sender.firstName;
-  const message = msg.type === 'text' ? msg.text : 'File';
+  let message = msg.type === 'text' ? msg.text : 'File';
+
+  const lengthLimit = 20;
+  if (message.length > lengthLimit) {
+    message = message.substring(0, lengthLimit) + '...';
+  }
+
   return `${sender}: ${message}`;
 };
 
