@@ -4,7 +4,11 @@ const {
   processMessage,
   fetchPaginatedMessages,
 } = require('../services/message.service');
-const { doesConversationExist } = require('../services/chat.service');
+
+const {
+  doesConversationExist,
+  resetUnreadMessagesCount,
+} = require('../services/chat.service');
 
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
@@ -31,6 +35,11 @@ async function fetchConversationMessages(req, res) {
   }
 
   try {
+    if (page === 1) {
+      const currentUser = await validateAndGetUser(null, req);
+      await resetUnreadMessagesCount(chatId, currentUser._id);
+    }
+
     const result = await fetchPaginatedMessages(chatId, page, limit);
 
     const responseData = {
@@ -50,6 +59,7 @@ async function fetchConversationMessages(req, res) {
     if (error.message === ERROR_MESSAGES.CHAT_NOT_FOUND) {
       errorCode = HTTP_STATUS.NOT_FOUND;
     }
+
     res.status(errorCode).json({
       success: false,
       error: error.message,

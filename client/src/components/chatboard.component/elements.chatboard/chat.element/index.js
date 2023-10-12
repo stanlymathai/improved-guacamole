@@ -59,8 +59,8 @@ const Chat = ({ chat, click }) => {
             src={chat.users[0].avatar}
             alt="User avatar"
           />
-          {chat.unreadCount && !isChatOpened() && (
-            <span className="badge-count">{chat.unreadCount}</span>
+          {chat.unreadMessages > 0 && !isChatOpened() && (
+            <span className="badge-count">{chat.unreadMessages}</span>
           )}
         </div>
         <div className="friend-info">

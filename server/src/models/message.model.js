@@ -58,24 +58,12 @@ messageSchema.index({ conversation: 1 });
 messageSchema.plugin(mongoosePaginate);
 
 /* After saving the message, update the lastMessage
-   field in the conversation document.
+field in the conversation document and increment unread count atomically.
 */
 messageSchema.post('save', function (doc, next) {
   const Conversation = mongoose.model('Conversation');
-  Conversation.findByIdAndUpdate(
-    doc.conversation,
-    { lastMessage: doc._id },
-    { new: true }
-  )
-    .then(() => next())
-    .catch((err) => next(err));
-});
 
-/* Before changing the status to 'DELETED',
-   move the text content to originalContent
-   and then clear the text content.
-*/
-messageSchema.pre('save', function (next) {
+  // Handle the DELETED status logic
   if (
     this.status === 'DELETED' &&
     !this.originalContent.text &&
@@ -83,18 +71,33 @@ messageSchema.pre('save', function (next) {
   ) {
     this.originalContent.text = this.text;
     this.originalContent.media = this.media;
-
     // clear the actual content media/text
     this.text = '';
     this.media = '';
+    return next(); // return from middleware after handling DELETED status
   }
-  next();
+
+  // Use atomic operations to update lastMessage and increment unread counts.
+  Conversation.updateOne(
+    {
+      _id: doc.conversation,
+    },
+    {
+      $inc: { 'unreadMessages.$[elem].count': 1 },
+      $set: { lastMessage: doc._id },
+    },
+    {
+      arrayFilters: [{ 'elem.user': { $ne: doc.sender } }],
+    }
+  )
+    .then(() => next())
+    .catch((err) => next(err));
 });
 
 /* Validate the text content based on the message type.
-   Text content is required for text messages.
-   Media content is required for media messages.
-*/
+  Text content is required for text messages.
+  Media content is required for media messages.
+  */
 messageSchema.path('text').validate(function (text) {
   if (this.type === 'text' && !text) {
     return false;

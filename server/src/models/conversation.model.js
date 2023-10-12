@@ -7,17 +7,33 @@ const conversationSchema = new mongoose.Schema(
       enum: ['dual', 'group'],
       default: 'dual',
     },
+
     lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Message',
       default: null,
     },
+
     participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
       },
     ],
+
+    unreadMessages: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
+
     status: {
       type: String,
       enum: ['ACTIVE', 'DELETED', 'ARCHIVED', 'REPORTED', 'MUTED'],

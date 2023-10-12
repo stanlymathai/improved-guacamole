@@ -19,6 +19,23 @@ async function getUserConversations(userId) {
         as: 'users',
       },
     },
+    {
+      $addFields: {
+        unreadMessages: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: '$unreadMessages',
+                as: 'unreadMessage',
+                cond: { $eq: ['$$unreadMessage.user', userId] },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    { $addFields: { unreadMessages: '$unreadMessages.count' } },
     { $project: { participants: 0 } },
     {
       $lookup: {
@@ -67,7 +84,10 @@ async function createOrUpdateConversation(currentUser, partnerUser) {
         $size: 2,
       },
     },
-    { participants: [currentUser._id, partnerUser._id] },
+    {
+      participants: [currentUser._id, partnerUser._id],
+      unreadMessages: [{ user: currentUser._id }, { user: partnerUser._id }],
+    },
     {
       upsert: true,
       new: true,
@@ -99,10 +119,42 @@ async function doesConversationExist(chatId) {
   return await Conversation.exists({ _id: chatId });
 }
 
+async function resetUnreadMessagesCount(chatId, userId) {
+  return await Conversation.updateOne(
+    {
+      _id: chatId,
+      'unreadMessages.user': userId,
+    },
+    {
+      $set: { 'unreadMessages.$.count': 0 },
+    }
+  );
+}
+
 async function getConversationById(chatId, userId) {
   try {
     const chat = await Conversation.aggregate([
       { $match: { _id: chatId } },
+
+      {
+        $addFields: {
+          unReadMessageCount: {
+            $let: {
+              vars: {
+                unreadArray: {
+                  $filter: {
+                    input: '$unreadMessages',
+                    as: 'unread',
+                    cond: { $eq: ['$$unread.user', userId] },
+                  },
+                },
+              },
+              in: { $arrayElemAt: ['$$unreadArray.count', 0] },
+            },
+          },
+        },
+      },
+
       {
         $lookup: {
           from: 'users',
@@ -117,7 +169,7 @@ async function getConversationById(chatId, userId) {
         },
       },
 
-      { $project: { participants: 0 } },
+      { $project: { participants: 0, unreadMessages: 0 } },
 
       {
         $lookup: {
@@ -160,6 +212,7 @@ async function getConversationById(chatId, userId) {
 
 module.exports = {
   createOrUpdateConversation,
+  resetUnreadMessagesCount,
   doesConversationExist,
   getUserConversations,
   getConversationById,
