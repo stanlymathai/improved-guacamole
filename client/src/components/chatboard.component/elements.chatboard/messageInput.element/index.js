@@ -27,14 +27,11 @@ const MessageInput = ({ chatId, socket, user, setMessages }) => {
     };
   }, []);
 
-  // handler fn's
-
   const handleOnBlur = () => {
     socket.emit('stopTyping', { chatId });
     clearTimeout(typingTimeoutRef.current);
   };
 
-  // Debounced function to handle stop typing
   const debouncedStopTyping = debounce(() => {
     socket.emit('stopTyping', { chatId });
   }, 2000);
@@ -43,31 +40,33 @@ const MessageInput = ({ chatId, socket, user, setMessages }) => {
     const value = e.target.value;
     setMessage(value);
     debouncedHandleOnChange(value);
-
-    // Reset and start the debounced "stopTyping" timer
     debouncedStopTyping();
   };
 
-  const actualHandleOnChange = (value) => {
+  const emitTypingEvent = (value) => {
     if (value.length >= activationThreshold) {
       socket.emit('typing', { chatId });
     }
   };
 
-  const debouncedHandleOnChange = debounce(actualHandleOnChange, 300);
+  const debouncedHandleOnChange = debounce(emitTypingEvent, 300);
 
   const handleOnKeyDown = (e) => {
     const value = e.target.value;
     if (value.length > 0 && e.key === 'Enter') {
-      // Emit the stop typing event since a message was sent
       socket.emit('stopTyping', { chatId });
 
       clearTimeout(typingTimeoutRef.current);
-      // console.log('chat knri', chat);
-      // chatService.createNewMessage(chat._id, value).then((res) => {
-      //   console.log('res knri', res);
-      //   setMessage('');
-      // });
+
+      chatService
+        .createNewMessage(chatId, message)
+        .then(({ success, data }) => {
+          if (success) {
+            setMessage('');
+            setMessages((prev) => [...prev, data]);
+          }
+        })
+        .catch((err) => console.log(err));
     }
   };
 

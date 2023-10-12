@@ -73,7 +73,7 @@ const Chat = ({ chat, click }) => {
       <div className="friend-status">
         <span
           className={`online-status ${userStatus(chat.users[0].isOnline)}`}
-        ></span>
+        />
       </div>
     </div>
   );

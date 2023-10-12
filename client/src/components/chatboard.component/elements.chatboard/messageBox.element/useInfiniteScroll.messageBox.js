@@ -1,14 +1,14 @@
 import { useRef, useEffect, useState } from 'react';
 import debounce from '../../../../utils/debounce.util';
 
-const useInfiniteScroll = (
+const useInfiniteScroll = ({
   hasMore,
   page,
   setPage,
   messages,
   DEBOUNCE_DELAY,
-  SCROLL_THRESHOLD
-) => {
+  SCROLL_THRESHOLD,
+}) => {
   const messageBoxRef = useRef(null);
   const [isAtTop, setIsAtTop] = useState(false);
 

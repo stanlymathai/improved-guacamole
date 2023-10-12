@@ -86,9 +86,8 @@ async function createNewMessage(req, res) {
 
     const currentUser = await validateAndGetUser(null, req);
 
-    await processMessage(chatId, text, media, currentUser);
-
-    res.status(HTTP_STATUS.CREATED).json({ success: true });
+    const result = await processMessage(chatId, text, media, currentUser);
+    res.status(HTTP_STATUS.CREATED).json({ success: true, data: result });
   } catch (error) {
     let errorCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
     if (error.message === ERROR_MESSAGES.CHAT_NOT_FOUND) {

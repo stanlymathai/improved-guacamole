@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import chatService from '../../../../services/chat.service';
 
-const useChatMessages = (chat) => {
+const useChatMessages = ({ chat, setMessages }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [messages, setMessages] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
@@ -43,7 +42,6 @@ const useChatMessages = (chat) => {
     page,
     error,
     loading,
-    messages,
     hasMore,
     setPage,
   };

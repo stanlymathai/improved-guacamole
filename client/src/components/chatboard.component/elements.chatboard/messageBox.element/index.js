@@ -9,17 +9,20 @@ import './messageBox.scss';
 const DEBOUNCE_DELAY = 75;
 const SCROLL_THRESHOLD = 10;
 
-const MessageBox = ({ chat, user }) => {
-  const { error, loading, messages, hasMore, page, setPage } =
-    useChatMessages(chat);
-  const { messageBoxRef, isAtTop } = useInfiniteScroll(
+const MessageBox = ({ chat, user, messages, setMessages }) => {
+  const { error, loading, hasMore, page, setPage } = useChatMessages({
+    chat,
+    setMessages,
+  });
+
+  const { messageBoxRef, isAtTop } = useInfiniteScroll({
     hasMore,
     page,
     setPage,
     messages,
     DEBOUNCE_DELAY,
-    SCROLL_THRESHOLD
-  );
+    SCROLL_THRESHOLD,
+  });
 
   return (
     <div id="msg-box" ref={messageBoxRef}>

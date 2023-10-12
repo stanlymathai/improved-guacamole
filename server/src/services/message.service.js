@@ -30,14 +30,28 @@ async function processMessage(chatId, text, media, user) {
     throw new Error(ERROR_MESSAGES.CHAT_NOT_FOUND);
   }
 
-  await Message.create({
+  const result = await Message.create({
     conversation: conversation._id,
     sender: user._id,
     media,
     text,
   });
 
-  return true;
+  const response = {
+    _id: String(result._id),
+    type: result.type,
+    text: result.text,
+    media: result.media,
+    sender: {
+      _id: String(user._id),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+    },
+    createdAt: result.createdAt,
+  };
+
+  return response;
 }
 
 module.exports = {
