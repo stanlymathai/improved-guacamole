@@ -52,12 +52,17 @@ const Chat = ({ chat, click }) => {
   return (
     <div onClick={click} className={`friend-list ${isChatOpened()}`}>
       <div>
-        <img
-          width="40"
-          height="40"
-          src={chat.users[0].avatar}
-          alt="User avatar"
-        />
+        <div className="profile-container">
+          <img
+            width="40"
+            height="40"
+            src={chat.users[0].avatar}
+            alt="User avatar"
+          />
+          {chat.unreadCount && !isChatOpened() && (
+            <span className="badge-count">{chat.unreadCount}</span>
+          )}
+        </div>
         <div className="friend-info">
           <h4 className="m-0">
             {chat.users[0].firstName} {chat.users[0].lastName}
