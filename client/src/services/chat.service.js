@@ -46,6 +46,15 @@ const chatService = {
     }
   },
 
+  addUserToChat: async (userId) => {
+    try {
+      const { data } = await HTTP.post('/chats/add', { userId });
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   createNewMessage: async (chatId, text) => {
     try {
       const { data } = await HTTP.post('/chats/', { chatId, text });

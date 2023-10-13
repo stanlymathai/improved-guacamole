@@ -2,18 +2,21 @@ const USER = require('../models/user.model');
 const pushToS3 = require('../helpers/uploadToS3');
 
 const HTTP_STATUS = require('../utils/httpStatus.util');
+const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 async function search_users(req, res) {
   const RESULTS_LIMIT = 10;
   const searchQuery = req.query.query;
   const idString = req.query.idString;
 
-  if (!searchQuery || !idString) {
+  if (!searchQuery) {
     return res.status(400).json({ message: 'Query parameter is required.' });
   }
 
   try {
-    const excludeIds = idString.split(',');
+    const currentUser = await validateAndGetUser(null, req);
+    const excludeIds = idString ? idString.split(',') : [];
+    excludeIds.push(currentUser._id);
 
     const users = await USER.find({
       $and: [
@@ -30,7 +33,7 @@ async function search_users(req, res) {
       .select('firstName lastName avatar')
       .limit(RESULTS_LIMIT);
 
-    return res.status(200).json(users);
+    res.status(HTTP_STATUS.SUCCESS).json({ success: true, data: users });
   } catch (error) {
     console.error('Error during user search:', error);
     return res.status(500).json({ message: 'Internal Server Error' });

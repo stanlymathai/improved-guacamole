@@ -54,7 +54,7 @@ conversationSchema.path('participants').validate(function (participants) {
   if (this.type === 'dual' && participants.length !== 2) {
     return false;
   }
-  if (this.type === 'group' && participants.length < 3) {
+  if (this.type === 'group' && participants.length > 2) {
     return false;
   }
   return true;

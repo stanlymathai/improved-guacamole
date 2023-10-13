@@ -3,74 +3,79 @@ const Conversation = require('../models/conversation.model');
 const { isUserOnline } = require('../socket/userManager.socket');
 
 async function getUserConversations(userId) {
-  const conversations = await Conversation.aggregate([
-    { $match: { participants: { $in: [userId] } } },
-    { $sort: { updatedAt: -1 } },
-    {
-      $lookup: {
-        from: 'users',
-        pipeline: [
-          { $match: { _id: { $ne: userId } } },
-          { $project: { firstName: 1, lastName: 1, avatar: 1 } },
-          { $addFields: { isTyping: false } },
-        ],
-        localField: 'participants',
-        foreignField: '_id',
-        as: 'users',
-      },
-    },
-    {
-      $addFields: {
-        unreadMessages: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: '$unreadMessages',
-                as: 'unreadMessage',
-                cond: { $eq: ['$$unreadMessage.user', userId] },
-              },
-            },
-            0,
+  try {
+    const conversations = await Conversation.aggregate([
+      { $match: { participants: { $in: [userId] } } },
+      { $sort: { updatedAt: -1 } },
+      {
+        $lookup: {
+          from: 'users',
+          pipeline: [
+            { $match: { _id: { $ne: userId } } },
+            { $project: { firstName: 1, lastName: 1, avatar: 1 } },
+            { $addFields: { isTyping: false } },
           ],
+          localField: 'participants',
+          foreignField: '_id',
+          as: 'users',
         },
       },
-    },
-    { $addFields: { unreadMessages: '$unreadMessages.count' } },
-    { $project: { participants: 0 } },
-    {
-      $lookup: {
-        from: 'messages',
-        pipeline: [
-          {
-            $lookup: {
-              from: 'users',
-              pipeline: [
-                { $project: { firstName: 1, lastName: 1, avatar: 1 } },
-              ],
-              localField: 'sender',
-              foreignField: '_id',
-              as: 'sender',
-            },
+      {
+        $addFields: {
+          unreadMessages: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$unreadMessages',
+                  as: 'unreadMessage',
+                  cond: { $eq: ['$$unreadMessage.user', userId] },
+                },
+              },
+              0,
+            ],
           },
-          { $unwind: { path: '$sender' } },
-          { $project: { sender: 1, text: 1, type: 1, createdAt: 1, _id: 0 } },
-        ],
-        localField: 'lastMessage',
-        foreignField: '_id',
-        as: 'lastMessage',
+        },
       },
-    },
-    { $unwind: { path: '$lastMessage', preserveNullAndEmptyArrays: true } },
-  ]);
+      { $addFields: { unreadMessages: '$unreadMessages.count' } },
+      { $project: { participants: 0 } },
+      {
+        $lookup: {
+          from: 'messages',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'users',
+                pipeline: [
+                  { $project: { firstName: 1, lastName: 1, avatar: 1 } },
+                ],
+                localField: 'sender',
+                foreignField: '_id',
+                as: 'sender',
+              },
+            },
+            { $unwind: { path: '$sender' } },
+            { $project: { sender: 1, text: 1, type: 1, createdAt: 1, _id: 0 } },
+          ],
+          localField: 'lastMessage',
+          foreignField: '_id',
+          as: 'lastMessage',
+        },
+      },
+      { $unwind: { path: '$lastMessage', preserveNullAndEmptyArrays: true } },
+    ]);
 
-  // Add the online status for each user in the conversations
-  for (let conversation of conversations) {
-    for (let user of conversation.users) {
-      user.isOnline = isUserOnline(user._id.toString());
+    // Add the online status for each user in the conversations
+    for (let conversation of conversations) {
+      for (let user of conversation.users) {
+        user.isOnline = isUserOnline(user._id.toString());
+      }
     }
-  }
 
-  return conversations;
+    return conversations;
+  } catch (error) {
+    console.error('Error in getUserConversations:', error);
+    throw error;
+  }
 }
 
 async function createOrUpdateConversation(currentUser, partnerUser) {
@@ -131,35 +136,32 @@ async function resetUnreadMessagesCount(chatId, userId) {
   );
 }
 
-async function getConversationById(chatId, userId) {
+async function addUserToConversation(conversationId, userId) {
+  return Conversation.findByIdAndUpdate(
+    conversationId,
+    {
+      $set: { type: 'group' },
+      $push: {
+        participants: userId,
+        unreadMessages: {
+          user: userId,
+          count: 0,
+        },
+      },
+    },
+    { new: true, useFindAndModify: false }
+  );
+}
+
+async function getConversationById(chatId) {
   try {
     const chat = await Conversation.aggregate([
       { $match: { _id: chatId } },
 
       {
-        $addFields: {
-          unReadMessageCount: {
-            $let: {
-              vars: {
-                unreadArray: {
-                  $filter: {
-                    input: '$unreadMessages',
-                    as: 'unread',
-                    cond: { $eq: ['$$unread.user', userId] },
-                  },
-                },
-              },
-              in: { $arrayElemAt: ['$$unreadArray.count', 0] },
-            },
-          },
-        },
-      },
-
-      {
         $lookup: {
           from: 'users',
           pipeline: [
-            { $match: { _id: { $ne: userId } } },
             { $project: { firstName: 1, lastName: 1, avatar: 1 } },
             { $addFields: { isTyping: false } },
           ],
@@ -169,7 +171,7 @@ async function getConversationById(chatId, userId) {
         },
       },
 
-      { $project: { participants: 0, unreadMessages: 0 } },
+      { $project: { unreadMessages: 0 } },
 
       {
         $lookup: {
@@ -210,10 +212,26 @@ async function getConversationById(chatId, userId) {
   }
 }
 
+async function doesUserConversationExists(chatId, userId) {
+  try {
+    const conversation = await Conversation.findOne({
+      _id: chatId,
+      participants: userId,
+    });
+
+    return conversation || null;
+  } catch (error) {
+    console.error('Error doesUserConversationExists:', error);
+    throw error;
+  }
+}
+
 module.exports = {
+  doesUserConversationExists,
   createOrUpdateConversation,
   resetUnreadMessagesCount,
   doesConversationExist,
+  addUserToConversation,
   getUserConversations,
   getConversationById,
   getPeersIdList,

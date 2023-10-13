@@ -16,7 +16,6 @@ import './chatList.scss';
 const ChatList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chat.chats);
-  const currentUser = useSelector((state) => state.auth.user);
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -37,11 +36,17 @@ const ChatList = () => {
     const { value } = e.target;
     if (value.length === 0) return setSuggestions([]);
     const excludeIds = existingUserIds(chats);
-    excludeIds.push(currentUser.id);
+
     const excludeIdsString = excludeIds.join(',');
     chatService
       .searchUsers(value, excludeIdsString)
-      .then((res) => setSuggestions(res));
+      .then(({ success, data }) => {
+        if (!success || data.length === 0) {
+          setSuggestions([]);
+          return;
+        }
+        setSuggestions(data);
+      });
   };
 
   const addNewFriend = (id) => {
@@ -80,19 +85,19 @@ const ChatList = () => {
           <Fragment key="body">
             <p>Find friends by typing their name bellow</p>
             <input
-              onInput={(e) => searchFriends(e)}
+              autoFocus
               type="text"
               placeholder="Search..."
-              autoFocus
+              onInput={(e) => searchFriends(e)}
             />
             <div id="suggestions">
-              {suggestions.map((user) => {
+              {suggestions.map((el) => {
                 return (
-                  <div key={user._id} className="suggestion">
+                  <div key={el._id} className="suggestion">
                     <p className="m-0">
-                      {user.firstName} {user.lastName}
+                      {el.firstName} {el.lastName}
                     </p>
-                    <button onClick={() => addNewFriend(user._id)}>ADD</button>
+                    <button onClick={() => addNewFriend(el._id)}>ADD</button>
                   </div>
                 );
               })}

@@ -1,6 +1,8 @@
-import React, { Fragment, useState } from 'react';
-
+import React, { Fragment, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import chatService from '../../../../services/chat.service';
+
 import Modal from '../modal.element';
 import './chatHeader.scss';
 
@@ -9,12 +11,32 @@ const ChatHeader = ({ chat }) => {
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
 
+  const excludeIds = chat.users.map((user) => user._id);
+
+  useEffect(() => {
+    setSuggestions([]);
+    setShowChatOptions(false);
+    setShowAddFriendModal(false);
+  }, [chat]);
+
   const searchFriends = (e) => {
-    console.log('searchFriends', e.target.value);
+    const { value } = e.target;
+    if (value.length === 0) return setSuggestions([]);
+
+    const excludeIdsString = excludeIds.join(',');
+    chatService
+      .searchUsers(value, excludeIdsString)
+      .then(({ success, data }) => {
+        if (!success || data.length === 0) {
+          setSuggestions([]);
+          return;
+        }
+        setSuggestions(data);
+      });
   };
 
-  const addNewFriend = (id) => {
-    console.log('addNewFriend', id);
+  const addUserToChat = (id) => {
+    console.log('addUserToChat', id);
   };
 
   const leaveChat = () => {
@@ -86,18 +108,19 @@ const ChatHeader = ({ chat }) => {
           <Fragment key="body">
             <p>Find friends by typing their name bellow</p>
             <input
-              onInput={(e) => searchFriends(e)}
+              autoFocus
               type="text"
               placeholder="Search..."
+              onInput={(e) => searchFriends(e)}
             />
             <div id="suggestions">
-              {suggestions.map((user) => {
+              {suggestions.map((el) => {
                 return (
-                  <div key={user.id} className="suggestion">
+                  <div key={el._id} className="suggestion">
                     <p className="m-0">
-                      {user.firstName} {user.lastName}
+                      {el.firstName} {el.lastName}
                     </p>
-                    <button onClick={() => addNewFriend(user.id)}>ADD</button>
+                    <button onClick={() => addUserToChat(el._id)}>ADD</button>
                   </div>
                 );
               })}

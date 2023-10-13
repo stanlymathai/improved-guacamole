@@ -1,11 +1,19 @@
 'use strict';
 
+const EventEmitter = require('node:events');
+class MyEmitter extends EventEmitter {}
+const chatEmitter = new MyEmitter();
+
+const mongoose = require('mongoose');
+
 const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
 const {
-  getConversationById,
   getUserConversations,
+  getConversationById,
+  addUserToConversation,
+  doesUserConversationExists,
   createOrUpdateConversation,
 } = require('../services/chat.service');
 
@@ -30,14 +38,7 @@ async function initiateOrUpdateConversation(req, res) {
         error: ERROR_MESSAGES.CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF,
       });
 
-    const conversation = await createOrUpdateConversation(
-      currentUser,
-      partnerUser
-    );
-    const response = await getConversationById(
-      conversation._id,
-      currentUser._id
-    );
+    const response = await createOrUpdateConversation(currentUser, partnerUser);
 
     return res.json({ success: true, data: response });
   } catch (error) {
@@ -72,7 +73,59 @@ async function fetchUserConversations(req, res) {
   }
 }
 
+async function addUserToChat(req, res) {
+  try {
+    const { chatId, userId } = req.body;
+
+    if (!chatId || !userId)
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGES.CHAT_ID_AND_USER_ID_ARE_REQUIRED,
+      });
+
+    const currentUser = await validateAndGetUser(null, req);
+    console.log('currentUser knri', currentUser);
+
+    const conversationId = new mongoose.Types.ObjectId(chatId);
+
+    const conversation = await doesUserConversationExists(
+      conversationId,
+      currentUser._id
+    );
+
+    if (!conversation)
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGES.CHAT_NOT_FOUND,
+      });
+
+    const user = await validateAndGetUser(userId);
+
+    if (
+      conversation.participants.find((u) => String(u._id) === String(user._id))
+    )
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGES.USER_ALREADY_IN_CHAT,
+      });
+
+    await addUserToConversation(conversation._id, user._id);
+    const response = await getConversationById(conversation._id);
+
+    chatEmitter.emit('userAddedToChat', { chat: response });
+
+    return res.json({ success: true, data: response });
+  } catch (error) {
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   initiateOrUpdateConversation,
   fetchUserConversations,
+  addUserToChat,
+  chatEmitter,
 };
