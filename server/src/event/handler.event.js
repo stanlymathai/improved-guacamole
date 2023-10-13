@@ -1,33 +1,38 @@
 const { getUserSocketIds } = require('../socket/userManager.socket');
 
-async function handleChatUpdate(conversation, io) {
-  const participants = conversation.participants;
+function handleChatUpdate(chat, io) {
+  try {
+    const participants = chat.participants;
 
-  participants.forEach((userId) => {
-    const userSockets = getUserSocketIds(String(userId));
+    participants.forEach((userId) => {
+      const userSockets = getUserSocketIds(String(userId));
 
-    if (userSockets) {
-      const userUnread = conversation.unreadMessages.find(
-        (unread) => unread.user === userId
-      );
-      const unreadMessages = userUnread ? userUnread.count : 0;
-      const users = conversation.users.filter(
-        (el) => String(el._id) !== String(userId)
-      );
+      if (userSockets) {
+        const foundObject = chat.unreadMessages.find(
+          (obj) => obj.user.toString() === userId.toString()
+        );
 
-      const payload = {
-        ...conversation,
-        unreadMessages,
-        users,
-      };
+        const unreadMessages = foundObject ? foundObject.count : 0;
+        const users = chat.users.filter(
+          (el) => String(el._id) !== String(userId)
+        );
 
-      delete payload.participants;
+        const eventData = {
+          ...chat,
+          unreadMessages,
+          users,
+        };
 
-      userSockets.forEach((socketId) => {
-        io.to(socketId).emit('chat:update', payload);
-      });
-    }
-  });
+        const { participants, ...payload } = eventData;
+
+        userSockets.forEach((socketId) => {
+          io.to(socketId).emit('chat:update', payload);
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Error in handleChatUpdate:', error);
+  }
 }
 
 module.exports = { handleChatUpdate };

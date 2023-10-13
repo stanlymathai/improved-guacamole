@@ -81,8 +81,6 @@ async function addUserToChat(req, res) {
       });
 
     const currentUser = await validateAndGetUser(null, req);
-    console.log('currentUser knri', currentUser);
-
     const conversationId = new mongoose.Types.ObjectId(chatId);
 
     const conversation = await doesUserConversationExists(
