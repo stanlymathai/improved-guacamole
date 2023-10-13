@@ -1,7 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  fetchChats,
   createChat,
   setCurrentChat,
 } from '../../../../store/actions.store/chat.action';
@@ -23,6 +22,15 @@ const ChatList = () => {
   // handler fn's
   const openChat = (chatId) => {
     dispatch(setCurrentChat(chatId));
+  };
+
+  const addNewFriend = (id) => {
+    dispatch(createChat(id)).then(({ success }) => {
+      if (success) {
+        setSuggestions([]);
+        setShowFriendsModal(false);
+      }
+    });
   };
 
   function existingUserIds(chats) {
@@ -47,13 +55,6 @@ const ChatList = () => {
         }
         setSuggestions(data);
       });
-  };
-
-  const addNewFriend = (id) => {
-    dispatch(createChat(id)).then(() => {
-      dispatch(fetchChats());
-      setShowFriendsModal(false);
-    });
   };
 
   return (

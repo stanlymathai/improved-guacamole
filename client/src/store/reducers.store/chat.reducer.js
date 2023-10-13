@@ -72,6 +72,32 @@ const chatReducer = (state = initialState, action) => {
       };
     }
 
+    case types.HANDLE_CHAT_UPDATE: {
+      const { chats } = state;
+
+      let chatExists = false;
+
+      const updatedChats = chats.map((chat) => {
+        if (chat._id === payload._id) {
+          chatExists = true;
+          return {
+            ...chat,
+            ...payload,
+          };
+        }
+        return chat;
+      });
+
+      let newState = { ...state, chats: updatedChats };
+
+      if (!chatExists) {
+        updatedChats.unshift({ ...payload });
+        newState = { ...newState, currentChat: payload._id };
+      }
+
+      return newState;
+    }
+
     default: {
       return state;
     }

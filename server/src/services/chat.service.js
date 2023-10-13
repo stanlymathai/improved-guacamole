@@ -79,27 +79,32 @@ async function getUserConversations(userId) {
 }
 
 async function createOrUpdateConversation(currentUser, partnerUser) {
-  return await Conversation.findOneAndUpdate(
-    {
-      participants: {
-        $all: [
-          { $elemMatch: { $eq: currentUser._id } },
-          { $elemMatch: { $eq: partnerUser._id } },
-        ],
-        $size: 2,
+  try {
+    return await Conversation.findOneAndUpdate(
+      {
+        participants: {
+          $all: [
+            { $elemMatch: { $eq: currentUser._id } },
+            { $elemMatch: { $eq: partnerUser._id } },
+          ],
+          $size: 2,
+        },
       },
-    },
-    {
-      participants: [currentUser._id, partnerUser._id],
-      unreadMessages: [{ user: currentUser._id }, { user: partnerUser._id }],
-    },
-    {
-      upsert: true,
-      new: true,
-      setDefaultsOnInsert: true,
-      projection: { participants: 0 },
-    }
-  );
+      {
+        participants: [currentUser._id, partnerUser._id],
+        unreadMessages: [{ user: currentUser._id }, { user: partnerUser._id }],
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+        projection: { _id: 1 },
+      }
+    );
+  } catch (error) {
+    console.error('Error createOrUpdateConversation:', error);
+    throw error;
+  }
 }
 
 async function getPeersIdList(userId) {
@@ -170,8 +175,6 @@ async function getConversationById(chatId) {
           as: 'users',
         },
       },
-
-      { $project: { unreadMessages: 0 } },
 
       {
         $lookup: {

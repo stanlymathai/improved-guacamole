@@ -12,7 +12,7 @@ export const fetchChats = () => async (dispatch) => {
   }
 };
 
-export const createChat = (partnerId) => async (dispatch) => {
+export const createChat = (partnerId) => async () => {
   try {
     const data = await chatService.createChat(partnerId);
     if (data.success !== true) throw new Error(data.error.message);
@@ -27,6 +27,10 @@ export const handleTypingStatus = (data) => (dispatch) => {
     type: types.HANDLE_TYPING_STATUS,
     payload: data,
   });
+};
+
+export const handleChatUpdate = (data) => (dispatch) => {
+  dispatch({ type: types.HANDLE_CHAT_UPDATE, payload: data });
 };
 
 export const handlePeerStatusChange = (userId, type) => (dispatch) => {

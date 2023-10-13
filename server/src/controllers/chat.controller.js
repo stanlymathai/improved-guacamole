@@ -29,7 +29,6 @@ async function initiateOrUpdateConversation(req, res) {
       });
 
     const currentUser = await validateAndGetUser(null, req);
-
     const partnerUser = await validateAndGetUser(partnerId);
 
     if (String(currentUser._id) === String(partnerUser._id))
@@ -38,9 +37,11 @@ async function initiateOrUpdateConversation(req, res) {
         error: ERROR_MESSAGES.CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF,
       });
 
-    const response = await createOrUpdateConversation(currentUser, partnerUser);
+    const result = await createOrUpdateConversation(currentUser, partnerUser);
+    const conversation = await getConversationById(result._id);
 
-    return res.json({ success: true, data: response });
+    chatEmitter.emit('chat:update', conversation);
+    return res.json({ success: true });
   } catch (error) {
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,

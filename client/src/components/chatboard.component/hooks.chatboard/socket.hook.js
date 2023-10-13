@@ -4,6 +4,7 @@ import socketIOClient from 'socket.io-client';
 
 import {
   setSocket,
+  handleChatUpdate,
   handleTypingStatus,
   handlePeerStatusChange,
 } from '../../../store/actions.store/chat.action';
@@ -39,6 +40,10 @@ function useSocket(payload, dispatch) {
 
     socket.on('friendStopTyping', (data) => {
       debouncedHandleStopTyping({ ...data, isTyping: false });
+    });
+
+    socket.on('chat:update', (data) => {
+      dispatch(handleChatUpdate(data));
     });
 
     socket.on('error', (error) => {
