@@ -2,11 +2,10 @@ const {
   handleJoin,
   handleTyping,
   handleDisconnect,
-} = require('./handler.event.socket');
+} = require('./handler.socket');
 
-const { handleChatUpdate } = require('./dispatch.event.socket');
-
-const { chatEmitter } = require('../controllers/chat.controller');
+const chatEmitter = require('../event');
+const eventHandler = require('../event/handler.event');
 
 const socketServer = (server) => {
   const io = require('socket.io')(server, {
@@ -23,7 +22,9 @@ const socketServer = (server) => {
     socket.on('stopTyping', (data) => handleTyping(socket, data, false, io));
   });
 
-  chatEmitter.on('chat:update', (data) => handleChatUpdate(data, io));
+  chatEmitter.on('chat:update', (data) =>
+    eventHandler.handleChatUpdate(data, io)
+  );
 };
 
 module.exports = socketServer;

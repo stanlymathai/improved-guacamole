@@ -1,4 +1,5 @@
 const isValidObjectId = require('mongoose').isValidObjectId;
+const chatEmitter = require('../event');
 
 const {
   processMessage,
@@ -6,6 +7,7 @@ const {
 } = require('../services/message.service');
 
 const {
+  getConversationById,
   doesConversationExist,
   resetUnreadMessagesCount,
 } = require('../services/chat.service');
@@ -86,8 +88,11 @@ async function createNewMessage(req, res) {
 
     const currentUser = await validateAndGetUser(null, req);
 
-    const result = await processMessage(chatId, text, media, currentUser);
-    res.status(HTTP_STATUS.CREATED).json({ success: true, data: result });
+    const response = await processMessage(chatId, text, media, currentUser);
+    const conversation = await getConversationById(response.chatId);
+
+    chatEmitter.emit('chat:update', conversation);
+    res.status(HTTP_STATUS.CREATED).json({ success: true, data: response });
   } catch (error) {
     let errorCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
     if (error.message === ERROR_MESSAGES.CHAT_NOT_FOUND) {

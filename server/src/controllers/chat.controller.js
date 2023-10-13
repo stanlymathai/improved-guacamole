@@ -1,11 +1,7 @@
 'use strict';
 
-const EventEmitter = require('node:events');
-class MyEmitter extends EventEmitter {}
-const chatEmitter = new MyEmitter();
-
 const mongoose = require('mongoose');
-
+const chatEmitter = require('../event');
 const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
@@ -128,5 +124,4 @@ module.exports = {
   initiateOrUpdateConversation,
   fetchUserConversations,
   addUserToChat,
-  chatEmitter,
 };

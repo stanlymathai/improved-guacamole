@@ -49,6 +49,7 @@ async function processMessage(chatId, text, media, user) {
       avatar: user.avatar,
     },
     createdAt: result.createdAt,
+    chatId: conversation._id,
   };
 
   return response;
