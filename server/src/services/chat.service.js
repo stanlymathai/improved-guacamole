@@ -192,7 +192,7 @@ async function getConversationById(chatId) {
               },
             },
             { $unwind: { path: '$sender' } },
-            { $project: { sender: 1, text: 1, type: 1, createdAt: 1, _id: 0 } },
+            { $project: { sender: 1, text: 1, type: 1, createdAt: 1 } },
           ],
           localField: 'lastMessage',
           foreignField: '_id',

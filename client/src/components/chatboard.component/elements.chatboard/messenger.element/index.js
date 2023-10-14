@@ -10,19 +10,19 @@ import './messenger.scss';
 const Messenger = () => {
   const chats = useSelector((state) => state.chat.chats);
   const thisUser = useSelector((state) => state.auth.user);
-  const currentChat = useSelector((state) => state.chat.currentChat);
-  const selectedChat = chats.find((chat) => chat._id === currentChat);
+  const thisChat = useSelector((state) => state.chat.thisChat);
+  const selectedChat = chats.find((chat) => chat._id === thisChat);
 
   const [messages, setMessages] = useState([]);
 
   return (
     <div id="messenger" className="shadow-light">
-      {currentChat ? (
+      {thisChat ? (
         <div id="messenger-wrap">
           <ChatHeader chat={selectedChat} />
           <hr />
           <MessageBox
-            chat={currentChat}
+            chat={thisChat}
             user={thisUser}
             messages={messages}
             setMessages={setMessages}

@@ -1,5 +1,5 @@
 const isValidObjectId = require('mongoose').isValidObjectId;
-const chatEmitter = require('../event');
+const messageBus = require('../event');
 
 const {
   processMessage,
@@ -12,10 +12,43 @@ const {
   resetUnreadMessagesCount,
 } = require('../services/chat.service');
 
+const {
+  sendBadRequest,
+  sendSuccessResponse,
+  sendInternalServerError,
+} = require('../utils/responseHandlers.util');
+
+const { adaptUserChatData } = require('../helpers/adaptUserData.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
+
+async function createNewMessage(req, res) {
+  try {
+    const { chatId, text, media, socketId } = req.body;
+    if (!chatId || !isValidObjectId(chatId)) {
+      sendBadRequest(res, ERROR_MESSAGES.INVALID_CHAT_ID);
+      return;
+    }
+
+    if (!text && !media) {
+      sendBadRequest(res, ERROR_MESSAGES.MISSING_TEXT_OR_MEDIA);
+      return;
+    }
+
+    const thisUser = await validateAndGetUser(null, req);
+    const response = await processMessage(chatId, text, media, thisUser);
+    const chat = await getConversationById(response.chatId);
+
+    const data = adaptUserChatData(chat, thisUser._id);
+
+    sendSuccessResponse(res, data);
+    return messageBus.emitChatUpdate({ chat, socketId });
+  } catch (error) {
+    return sendInternalServerError(res, error.message);
+  }
+}
 
 async function fetchConversationMessages(req, res) {
   const limit = 10;
@@ -38,8 +71,8 @@ async function fetchConversationMessages(req, res) {
 
   try {
     if (page === 1) {
-      const currentUser = await validateAndGetUser(null, req);
-      await resetUnreadMessagesCount(chatId, currentUser._id);
+      const thisUser = await validateAndGetUser(null, req);
+      await resetUnreadMessagesCount(chatId, thisUser._id);
     }
 
     const result = await fetchPaginatedMessages(chatId, page, limit);
@@ -62,42 +95,6 @@ async function fetchConversationMessages(req, res) {
       errorCode = HTTP_STATUS.NOT_FOUND;
     }
 
-    res.status(errorCode).json({
-      success: false,
-      error: error.message,
-    });
-  }
-}
-
-async function createNewMessage(req, res) {
-  try {
-    const { chatId, text, media } = req.body;
-    if (!chatId || !isValidObjectId(chatId)) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: ERROR_MESSAGES.INVALID_CHAT_ID,
-      });
-    }
-
-    if (!text && !media) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: ERROR_MESSAGES.MISSING_TEXT_OR_MEDIA,
-      });
-    }
-
-    const currentUser = await validateAndGetUser(null, req);
-
-    const response = await processMessage(chatId, text, media, currentUser);
-    const conversation = await getConversationById(response.chatId);
-
-    chatEmitter.emit('chat:update', conversation);
-    res.status(HTTP_STATUS.CREATED).json({ success: true, data: response });
-  } catch (error) {
-    let errorCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
-    if (error.message === ERROR_MESSAGES.CHAT_NOT_FOUND) {
-      errorCode = HTTP_STATUS.NOT_FOUND;
-    }
     res.status(errorCode).json({
       success: false,
       error: error.message,

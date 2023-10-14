@@ -3,7 +3,7 @@ import * as types from '../types.store/chat.type';
 const initialState = {
   chats: [],
   socket: {},
-  currentChat: null,
+  thisChat: null,
 };
 
 const chatReducer = (state = initialState, action) => {
@@ -19,7 +19,7 @@ const chatReducer = (state = initialState, action) => {
     case types.SET_CURRENT_CHAT:
       return {
         ...state,
-        currentChat: payload,
+        thisChat: payload,
       };
 
     case types.SET_SOCKET: {
@@ -102,7 +102,7 @@ const chatReducer = (state = initialState, action) => {
 
       if (!chatExists) {
         updatedChats.unshift({ ...payload });
-        newState = { ...newState, currentChat: payload._id };
+        newState = { ...newState, thisChat: payload._id };
       }
 
       return newState;

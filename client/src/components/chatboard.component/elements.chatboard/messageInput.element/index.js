@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { handleChatUpdate } from '../../../../store/actions.store/chat.action';
 import chatService from '../../../../services/chat.service';
 import debounce from '../../../../utils/debounce.util';
 
@@ -12,11 +13,12 @@ import Picker from '@emoji-mart/react';
 import './messageInput.scss';
 
 const MessageInput = ({ setMessages }) => {
-  const chatId = useSelector((state) => state.chat.currentChat);
-  const socket = useSelector((state) => state.chat.socket);
-
+  const dispatch = useDispatch();
   const fileUpload = useRef();
   const msgInput = useRef();
+
+  const chatId = useSelector((state) => state.chat.thisChat);
+  const socket = useSelector((state) => state.chat.socket);
 
   const [message, setMessage] = useState('');
   const [image, setImage] = useState('');
@@ -63,11 +65,17 @@ const MessageInput = ({ setMessages }) => {
       clearTimeout(typingTimeoutRef.current);
 
       chatService
-        .createNewMessage(chatId, message)
+        .createNewMessage(chatId, message, socket.id)
         .then(({ success, data }) => {
           if (success) {
             setMessage('');
-            setMessages((prev) => [...prev, data]);
+            const _msg = {
+              ...data.lastMessage,
+              _id: data.lastMessage._id,
+              media: '',
+            };
+            setMessages((prev) => [...prev, _msg]);
+            dispatch(handleChatUpdate(data));
           }
         })
         .catch((err) => console.log(err));

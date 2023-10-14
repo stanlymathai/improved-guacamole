@@ -16,9 +16,9 @@ const MessageBox = ({ chat, user, messages, setMessages }) => {
   });
 
   const { messageBoxRef, isAtTop } = useInfiniteScroll({
+    setPage,
     hasMore,
     page,
-    setPage,
     messages,
     DEBOUNCE_DELAY,
     SCROLL_THRESHOLD,
@@ -35,9 +35,11 @@ const MessageBox = ({ chat, user, messages, setMessages }) => {
           {isAtTop && !hasMore && messages.length > 10 && (
             <p>No more messages to load.</p>
           )}
-          {messages.map((message) => (
-            <Message message={message} key={message._id} user={user} />
-          ))}
+          <ul aria-label="Chat messages">
+            {messages.map((_msg) => (
+              <Message key={_msg._id} message={_msg} user={user} />
+            ))}
+          </ul>
         </>
       )}
       {error && <p className="error-message">{error}</p>}

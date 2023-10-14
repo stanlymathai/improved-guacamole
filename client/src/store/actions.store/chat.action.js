@@ -33,6 +33,7 @@ export const handleTypingStatus = (data) => (dispatch) => {
 };
 
 export const handleChatUpdate = (data) => (dispatch) => {
+  console.log('handleChatUpdate', data);
   dispatch({ type: types.HANDLE_CHAT_UPDATE, payload: data });
 };
 
@@ -40,7 +41,7 @@ export const handlePeerStatusChange = (userId, type) => (dispatch) => {
   dispatch({ type: types.HANDLE_CONNECTION, payload: { userId, type } });
 };
 
-export const setCurrentChat = (chat) => (dispatch) => {
+export const setThisChat = (chat) => (dispatch) => {
   dispatch({ type: types.SET_CURRENT_CHAT, payload: chat });
 };
 

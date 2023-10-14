@@ -42,10 +42,10 @@ function whoIsTyping(data, thisUser) {
 
 const Chat = ({ chat, click }) => {
   const thisUser = useSelector((state) => state.auth.user);
-  const currentChat = useSelector((state) => state.chat.currentChat);
+  const thisChat = useSelector((state) => state.chat.thisChat);
 
   const isChatOpened = () => {
-    return currentChat === chat._id ? 'opened' : '';
+    return thisChat === chat._id ? 'opened' : '';
   };
 
   return (

@@ -1,12 +1,7 @@
-const {
-  handleJoin,
-  handleTyping,
-  handleDisconnect,
-} = require('./handler.socket');
-
 const messageBus = require('../event');
 const events = require('./event.socket');
 const eventHandler = require('../event/handler.event');
+const SocketHandlers = require('./handler.socket');
 
 const socketServer = (server) => {
   const io = require('socket.io')(server, {
@@ -16,16 +11,20 @@ const socketServer = (server) => {
     },
   });
 
+  const handlers = new SocketHandlers(io);
+
   io.on('connection', (socket) => {
-    socket.on(events.JOIN, (data) => handleJoin(socket, data, io));
+    socket.on(events.JOIN, (data) => handlers.handleJoin(socket, data));
 
-    // Handling Socket.io's built-in 'disconnect' event
-    socket.on(events.DISCONNECT, () => handleDisconnect(socket, io));
+    // Handling Socket.io's built-in 'disconnect' event.
+    socket.on(events.DISCONNECT, () => handlers.handleDisconnect(socket));
 
-    socket.on(events.TYPING, (data) => handleTyping(socket, data, true, io));
+    socket.on(events.TYPING, (data) =>
+      handlers.handleTyping(socket, data, true)
+    );
 
     socket.on(events.STOP_TYPING, (data) =>
-      handleTyping(socket, data, false, io)
+      handlers.handleTyping(socket, data, false)
     );
   });
 

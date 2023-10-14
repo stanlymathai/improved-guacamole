@@ -2,7 +2,7 @@ import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   createChat,
-  setCurrentChat,
+  setThisChat,
 } from '../../../../store/actions.store/chat.action';
 
 import chatService from '../../../../services/chat.service';
@@ -22,7 +22,7 @@ const ChatList = () => {
 
   // handler fn's
   const openChat = (chatId) => {
-    dispatch(setCurrentChat(chatId));
+    dispatch(setThisChat(chatId));
   };
 
   const addNewFriend = (userId) => {
