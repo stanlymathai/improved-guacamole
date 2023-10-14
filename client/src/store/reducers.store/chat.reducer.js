@@ -29,6 +29,16 @@ const chatReducer = (state = initialState, action) => {
       };
     }
 
+    case types.CREATE_CHAT: {
+      const { chats } = state;
+      const updatedChats = [payload, ...chats];
+
+      return {
+        ...state,
+        chats: updatedChats,
+      };
+    }
+
     case types.HANDLE_TYPING_STATUS: {
       const { chatId, userId, isTyping } = payload;
 

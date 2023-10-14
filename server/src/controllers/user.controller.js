@@ -1,7 +1,8 @@
 const USER = require('../models/user.model');
-const pushToS3 = require('../helpers/uploadToS3');
 
 const HTTP_STATUS = require('../utils/httpStatus.util');
+
+const pushToS3 = require('../helpers/uploadToS3.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 async function search_users(req, res) {

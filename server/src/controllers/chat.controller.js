@@ -13,11 +13,12 @@ const {
   createOrUpdateConversation,
 } = require('../services/chat.service');
 
+const helperUtil = require('../helpers/utils.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 async function initiateOrUpdateConversation(req, res) {
   try {
-    const { partnerId } = req.body;
+    const { partnerId, socketId } = req.body;
     if (!partnerId)
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
@@ -34,10 +35,23 @@ async function initiateOrUpdateConversation(req, res) {
       });
 
     const result = await createOrUpdateConversation(currentUser, partnerUser);
-    const conversation = await getConversationById(result._id);
+    const chat = await getConversationById(result._id);
 
-    chatEmitter.emit('chat:update', conversation);
-    return res.json({ success: true });
+    chatEmitter.emit('chat:update', { chat, socketId });
+
+    const { participants, ...responseData } = chat;
+    responseData.unreadMessages = helperUtil.getUnreadCountByUserId(
+      chat.unreadMessages,
+      currentUser._id
+    );
+    responseData.users = helperUtil.filterOutUserById(
+      chat.users,
+      currentUser._id
+    );
+
+    return res
+      .status(HTTP_STATUS.SUCCESS)
+      .json({ success: true, data: responseData });
   } catch (error) {
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,

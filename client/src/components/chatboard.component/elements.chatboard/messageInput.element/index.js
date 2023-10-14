@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -10,7 +11,10 @@ import Picker from '@emoji-mart/react';
 
 import './messageInput.scss';
 
-const MessageInput = ({ chatId, socket, user, setMessages }) => {
+const MessageInput = ({ setMessages }) => {
+  const chatId = useSelector((state) => state.chat.currentChat);
+  const socket = useSelector((state) => state.chat.socket);
+
   const fileUpload = useRef();
   const msgInput = useRef();
 

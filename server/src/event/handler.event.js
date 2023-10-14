@@ -1,6 +1,8 @@
 const { getUserSocketIds } = require('../socket/userManager.socket');
+const helperUtil = require('../helpers/utils.helper');
 
-function handleChatUpdate(chat, io) {
+function handleChatUpdate(data, io) {
+  const { chat, socketId } = data;
   try {
     const participants = chat.participants;
 
@@ -8,25 +10,20 @@ function handleChatUpdate(chat, io) {
       const userSockets = getUserSocketIds(String(userId));
 
       if (userSockets) {
-        const foundObject = chat.unreadMessages.find(
-          (obj) => obj.user.toString() === userId.toString()
-        );
-
-        const unreadMessages = foundObject ? foundObject.count : 0;
-        const users = chat.users.filter(
-          (el) => String(el._id) !== String(userId)
-        );
-
         const eventData = {
           ...chat,
-          unreadMessages,
-          users,
+          users: helperUtil.filterOutUserById(chat.users, userId),
+          unreadMessages: helperUtil.getUnreadCountByUserId(
+            chat.unreadMessages,
+            userId
+          ),
         };
 
         const { participants, ...payload } = eventData;
 
-        userSockets.forEach((socketId) => {
-          io.to(socketId).emit('chat:update', payload);
+        userSockets.forEach((socId) => {
+          if (socId === socketId) return;
+          io.to(socId).emit('chat:update', payload);
         });
       }
     });

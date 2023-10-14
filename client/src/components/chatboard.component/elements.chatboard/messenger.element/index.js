@@ -9,7 +9,6 @@ import './messenger.scss';
 
 const Messenger = () => {
   const chats = useSelector((state) => state.chat.chats);
-  const socket = useSelector((state) => state.chat.socket);
   const currentUser = useSelector((state) => state.auth.user);
   const currentChat = useSelector((state) => state.chat.currentChat);
   const selectedChat = chats.find((chat) => chat._id === currentChat);
@@ -28,12 +27,7 @@ const Messenger = () => {
             messages={messages}
             setMessages={setMessages}
           />
-          <MessageInput
-            socket={socket}
-            user={currentUser}
-            chatId={currentChat}
-            setMessages={setMessages}
-          />
+          <MessageInput setMessages={setMessages} />
         </div>
       ) : (
         <p>No active chat</p>
