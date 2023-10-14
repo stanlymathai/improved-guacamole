@@ -9,7 +9,7 @@ import './messenger.scss';
 
 const Messenger = () => {
   const chats = useSelector((state) => state.chat.chats);
-  const currentUser = useSelector((state) => state.auth.user);
+  const thisUser = useSelector((state) => state.auth.user);
   const currentChat = useSelector((state) => state.chat.currentChat);
   const selectedChat = chats.find((chat) => chat._id === currentChat);
 
@@ -23,7 +23,7 @@ const Messenger = () => {
           <hr />
           <MessageBox
             chat={currentChat}
-            user={currentUser}
+            user={thisUser}
             messages={messages}
             setMessages={setMessages}
           />

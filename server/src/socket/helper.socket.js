@@ -17,8 +17,8 @@ async function validateToken(token) {
     throw new Error('Invalid token');
   }
 
-  const currentUser = await validateAndGetUser(null, null, secretOrKey);
-  const userId = currentUser._id;
+  const thisUser = await validateAndGetUser(null, null, secretOrKey);
+  const userId = thisUser._id;
 
   if (!userId) {
     throw new Error('Invalid token');

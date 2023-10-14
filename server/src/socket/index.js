@@ -4,7 +4,8 @@ const {
   handleDisconnect,
 } = require('./handler.socket');
 
-const chatEmitter = require('../event');
+const messageBus = require('../event');
+const events = require('./event.socket');
 const eventHandler = require('../event/handler.event');
 
 const socketServer = (server) => {
@@ -16,13 +17,19 @@ const socketServer = (server) => {
   });
 
   io.on('connection', (socket) => {
-    socket.on('join', (data) => handleJoin(socket, data, io));
-    socket.on('disconnect', () => handleDisconnect(socket, io));
-    socket.on('typing', (data) => handleTyping(socket, data, true, io));
-    socket.on('stopTyping', (data) => handleTyping(socket, data, false, io));
+    socket.on(events.JOIN, (data) => handleJoin(socket, data, io));
+
+    // Handling Socket.io's built-in 'disconnect' event
+    socket.on(events.DISCONNECT, () => handleDisconnect(socket, io));
+
+    socket.on(events.TYPING, (data) => handleTyping(socket, data, true, io));
+
+    socket.on(events.STOP_TYPING, (data) =>
+      handleTyping(socket, data, false, io)
+    );
   });
 
-  chatEmitter.on('chat:update', (data) =>
+  messageBus.on(events.CHAT_UPDATE, (data) =>
     eventHandler.handleChatUpdate(data, io)
   );
 };

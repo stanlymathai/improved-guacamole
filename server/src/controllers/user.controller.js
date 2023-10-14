@@ -15,9 +15,9 @@ async function search_users(req, res) {
   }
 
   try {
-    const currentUser = await validateAndGetUser(null, req);
+    const thisUser = await validateAndGetUser(null, req);
     const excludeIds = idString ? idString.split(',') : [];
-    excludeIds.push(currentUser._id);
+    excludeIds.push(thisUser._id);
 
     const users = await USER.find({
       $and: [

@@ -6,11 +6,10 @@ const userStatus = (isOnline) => {
   return isOnline ? 'online' : 'offline';
 };
 
-const lastMessage = (msg, currentUser) => {
+const lastMessage = (msg, thisUser) => {
   if (!msg) return '';
 
-  const sender =
-    msg.sender._id === currentUser.id ? 'You' : msg.sender.firstName;
+  const sender = msg.sender._id === thisUser.id ? 'You' : msg.sender.firstName;
   let message = msg.type === 'text' ? msg.text : 'File';
 
   const lengthLimit = 20;
@@ -21,7 +20,7 @@ const lastMessage = (msg, currentUser) => {
   return `${sender}: ${message}`;
 };
 
-function whoIsTyping(data, currentUser) {
+function whoIsTyping(data, thisUser) {
   const typingUsers = [];
 
   for (const user of data.users) {
@@ -31,7 +30,7 @@ function whoIsTyping(data, currentUser) {
   }
 
   if (!typingUsers.length) {
-    return lastMessage(data.lastMessage, currentUser);
+    return lastMessage(data.lastMessage, thisUser);
   } else if (typingUsers.length === 1) {
     return `${typingUsers[0]} is typing...`;
   } else {
@@ -42,7 +41,7 @@ function whoIsTyping(data, currentUser) {
 }
 
 const Chat = ({ chat, click }) => {
-  const currentUser = useSelector((state) => state.auth.user);
+  const thisUser = useSelector((state) => state.auth.user);
   const currentChat = useSelector((state) => state.chat.currentChat);
 
   const isChatOpened = () => {
@@ -67,7 +66,7 @@ const Chat = ({ chat, click }) => {
           <h4 className="m-0">
             {chat.users[0].firstName} {chat.users[0].lastName}
           </h4>
-          <h5 className="m-0">{whoIsTyping(chat, currentUser)}</h5>
+          <h5 className="m-0">{whoIsTyping(chat, thisUser)}</h5>
         </div>
       </div>
       <div className="friend-status">

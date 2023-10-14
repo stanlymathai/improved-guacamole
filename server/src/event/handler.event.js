@@ -1,29 +1,22 @@
 const { getUserSocketIds } = require('../socket/userManager.socket');
-const helperUtil = require('../helpers/utils.helper');
+const { adaptUserChatData } = require('../helpers/adaptUserData.helper');
+const { CHAT_UPDATE } = require('../socket/event.socket');
 
 function handleChatUpdate(data, io) {
-  const { chat, socketId } = data;
-  try {
-    const participants = chat.participants;
+  const { chat = {}, socketId } = data;
+  const { participants = [] } = chat;
 
+  try {
     participants.forEach((userId) => {
       const userSockets = getUserSocketIds(String(userId));
 
       if (userSockets) {
-        const eventData = {
-          ...chat,
-          users: helperUtil.filterOutUserById(chat.users, userId),
-          unreadMessages: helperUtil.getUnreadCountByUserId(
-            chat.unreadMessages,
-            userId
-          ),
-        };
-
-        const { participants, ...payload } = eventData;
+        const payload = adaptUserChatData(chat, userId);
 
         userSockets.forEach((socId) => {
-          if (socId === socketId) return;
-          io.to(socId).emit('chat:update', payload);
+          if (socId !== socketId) {
+            io.to(socId).emit(CHAT_UPDATE, payload);
+          }
         });
       }
     });

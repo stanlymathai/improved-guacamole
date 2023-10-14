@@ -1,76 +1,66 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const chatEmitter = require('../event');
+const messageBus = require('../event');
+
+const {
+  sendBadRequest,
+  sendSuccessResponse,
+  sendInternalServerError,
+} = require('../utils/responseHandlers.util');
+
 const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
 const {
-  getUserConversations,
   getConversationById,
+  getUserConversations,
   addUserToConversation,
   doesUserConversationExists,
   createOrUpdateConversation,
 } = require('../services/chat.service');
 
-const helperUtil = require('../helpers/utils.helper');
+const { adaptUserChatData } = require('../helpers/adaptUserData.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 async function initiateOrUpdateConversation(req, res) {
   try {
     const { partnerId, socketId } = req.body;
-    if (!partnerId)
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: ERROR_MESSAGES.PARTNER_ID_IS_REQUIRED,
-      });
-
-    const currentUser = await validateAndGetUser(null, req);
+    if (!partnerId) {
+      sendBadRequest(res, ERROR_MESSAGES.PARTNER_ID_IS_REQUIRED);
+      return;
+    }
+    const thisUser = await validateAndGetUser(null, req);
     const partnerUser = await validateAndGetUser(partnerId);
 
-    if (String(currentUser._id) === String(partnerUser._id))
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: ERROR_MESSAGES.CANNOT_CREATE_A_CONVERSATION_WITH_YOURSELF,
-      });
+    if (String(thisUser._id) === String(partnerUser._id)) {
+      sendBadRequest(res, ERROR_MESSAGES.SELF_CHAT_NOT_ALLOWED);
+      return;
+    }
 
-    const result = await createOrUpdateConversation(currentUser, partnerUser);
+    const result = await createOrUpdateConversation(thisUser, partnerUser);
     const chat = await getConversationById(result._id);
 
-    chatEmitter.emit('chat:update', { chat, socketId });
+    const data = adaptUserChatData(chat, thisUser._id);
 
-    const { participants, ...responseData } = chat;
-    responseData.unreadMessages = helperUtil.getUnreadCountByUserId(
-      chat.unreadMessages,
-      currentUser._id
-    );
-    responseData.users = helperUtil.filterOutUserById(
-      chat.users,
-      currentUser._id
-    );
-
-    return res
-      .status(HTTP_STATUS.SUCCESS)
-      .json({ success: true, data: responseData });
+    sendSuccessResponse(res, data);
+    return messageBus.emitChatUpdate({ chat, socketId });
   } catch (error) {
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: error.message,
-    });
+    return sendInternalServerError(res, error.message);
   }
 }
 
 async function fetchUserConversations(req, res) {
   try {
-    const currentUser = await validateAndGetUser(null, req);
-    if (!currentUser) {
+    const thisUser = await validateAndGetUser(null, req);
+    if (!thisUser) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         error: ERROR_MESSAGES.UNAUTHORIZED_TO_PERFORM_THIS_ACTION,
       });
     }
 
-    const conversations = await getUserConversations(currentUser._id);
+    const conversations = await getUserConversations(thisUser._id);
 
     return res.status(HTTP_STATUS.SUCCESS).json({
       success: true,
@@ -94,12 +84,12 @@ async function addUserToChat(req, res) {
         error: ERROR_MESSAGES.CHAT_ID_AND_USER_ID_ARE_REQUIRED,
       });
 
-    const currentUser = await validateAndGetUser(null, req);
+    const thisUser = await validateAndGetUser(null, req);
     const conversationId = new mongoose.Types.ObjectId(chatId);
 
     const conversation = await doesUserConversationExists(
       conversationId,
-      currentUser._id
+      thisUser._id
     );
 
     if (!conversation)
@@ -120,8 +110,6 @@ async function addUserToChat(req, res) {
 
     await addUserToConversation(conversation._id, user._id);
     const response = await getConversationById(conversation._id);
-
-    chatEmitter.emit('userAddedToChat', { chat: response });
 
     return res.json({ success: true, data: response });
   } catch (error) {

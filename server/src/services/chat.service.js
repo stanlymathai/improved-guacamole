@@ -78,21 +78,21 @@ async function getUserConversations(userId) {
   }
 }
 
-async function createOrUpdateConversation(currentUser, partnerUser) {
+async function createOrUpdateConversation(thisUser, partnerUser) {
   try {
     return await Conversation.findOneAndUpdate(
       {
         participants: {
           $all: [
-            { $elemMatch: { $eq: currentUser._id } },
+            { $elemMatch: { $eq: thisUser._id } },
             { $elemMatch: { $eq: partnerUser._id } },
           ],
           $size: 2,
         },
       },
       {
-        participants: [currentUser._id, partnerUser._id],
-        unreadMessages: [{ user: currentUser._id }, { user: partnerUser._id }],
+        participants: [thisUser._id, partnerUser._id],
+        unreadMessages: [{ user: thisUser._id }, { user: partnerUser._id }],
       },
       {
         new: true,
