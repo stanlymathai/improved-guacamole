@@ -90,22 +90,16 @@ const chatReducer = (state = initialState, action) => {
       const updatedChats = chats.map((chat) => {
         if (chat._id === payload._id) {
           chatExists = true;
-          return {
-            ...chat,
-            ...payload,
-          };
+          return { ...chat, ...payload };
         }
         return chat;
       });
 
-      let newState = { ...state, chats: updatedChats };
-
       if (!chatExists) {
-        updatedChats.unshift({ ...payload });
-        newState = { ...newState, thisChat: payload._id };
+        updatedChats.unshift(payload);
       }
 
-      return newState;
+      return { ...state, chats: updatedChats };
     }
 
     default: {

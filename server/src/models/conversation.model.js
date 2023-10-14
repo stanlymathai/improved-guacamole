@@ -8,6 +8,11 @@ const conversationSchema = new mongoose.Schema(
       default: 'dual',
     },
 
+    initiatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+
     lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Message',

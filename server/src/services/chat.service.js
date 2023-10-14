@@ -91,6 +91,7 @@ async function createOrUpdateConversation(thisUser, partnerUser) {
         },
       },
       {
+        initiatedBy: thisUser._id,
         participants: [thisUser._id, partnerUser._id],
         unreadMessages: [{ user: thisUser._id }, { user: partnerUser._id }],
       },

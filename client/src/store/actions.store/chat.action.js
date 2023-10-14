@@ -19,7 +19,7 @@ export const createChat = (partnerId, socketId) => async (dispatch) => {
 
     dispatch({ type: types.CREATE_CHAT, payload: data });
 
-    return { success };
+    return { success, data };
   } catch (err) {
     throw err;
   }

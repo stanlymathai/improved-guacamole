@@ -27,7 +27,7 @@ const ChatList = () => {
 
   const addNewFriend = (userId) => {
     const socketId = socket.id;
-    dispatch(createChat(userId, socketId)).then(({ success }) => {
+    dispatch(createChat(userId, socketId)).then(({ success, data }) => {
       if (success) {
         setSuggestions([]);
         setShowFriendsModal(false);
