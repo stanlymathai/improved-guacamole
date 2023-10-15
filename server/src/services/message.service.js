@@ -38,12 +38,12 @@ async function processMessage(chatId, text, media, user) {
   });
 
   const response = {
-    _id: String(result._id),
+    _id: `${result._id}`,
     type: result.type,
     text: result.text,
     media: result.media,
     sender: {
-      _id: String(user._id),
+      _id: `${user._id}`,
       firstName: user.firstName,
       lastName: user.lastName,
       avatar: user.avatar,

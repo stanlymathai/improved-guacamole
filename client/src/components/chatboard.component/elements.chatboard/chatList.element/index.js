@@ -15,7 +15,6 @@ import './chatList.scss';
 const ChatList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chat.chats);
-  const socket = useSelector((state) => state.chat.socket);
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -26,11 +25,11 @@ const ChatList = () => {
   };
 
   const addNewFriend = (userId) => {
-    const socketId = socket.id;
-    dispatch(createChat(userId, socketId)).then(({ success, data }) => {
+    dispatch(createChat(userId)).then(({ success, data }) => {
       if (success) {
         setSuggestions([]);
         setShowFriendsModal(false);
+        dispatch(setThisChat(data._id));
       }
     });
   };

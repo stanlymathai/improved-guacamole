@@ -24,7 +24,7 @@ async function validateToken(token) {
     throw new Error('Invalid token');
   }
 
-  return String(userId);
+  return `${userId}`;
 }
 
 module.exports = {

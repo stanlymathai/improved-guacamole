@@ -1,14 +1,12 @@
 function getUnreadCountByUserId(unreadMessagesArray, userId) {
-  const unreadMessage = unreadMessagesArray.find(
-    (obj) => obj.user.toString() === userId.toString()
+  const unreadMessage = unreadMessagesArray.find((obj) =>
+    obj.user.equals(userId)
   );
   return unreadMessage ? unreadMessage.count : 0;
 }
 
 function filterOutUserById(usersArray, userId) {
-  const users = usersArray.filter(
-    (user) => String(user._id) !== String(userId)
-  );
+  const users = usersArray.filter((user) => !user._id.equals(userId));
   return users;
 }
 

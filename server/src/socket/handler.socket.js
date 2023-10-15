@@ -20,7 +20,7 @@ class SocketHandlers {
       const userId = await validateToken(token);
 
       // Add the user to their unique room
-      socket.join(String(userId));
+      socket.join(`${userId}`);
 
       addUser(userId, socket.id);
 
@@ -28,7 +28,7 @@ class SocketHandlers {
       const friendsIds = await getPeersIdList(userId);
 
       friendsIds.forEach((friendId) => {
-        this.io.to(String(friendId)).emit('peerStatusChange', {
+        this.io.to(`${friendId}`).emit('peerStatusChange', {
           type: 'connected',
           userId,
         });
@@ -56,7 +56,7 @@ class SocketHandlers {
     // Emit event based on typing status
     const event = isTyping ? 'friendTyping' : 'friendStopTyping';
     friendsIds.forEach((friendId) => {
-      this.io.to(String(friendId)).emit(event, { userId, chatId: data.chatId });
+      this.io.to(`${friendId}`).emit(event, { userId, chatId: data.chatId });
     });
   }
 
@@ -71,7 +71,7 @@ class SocketHandlers {
         const friendsIds = await getPeersIdList(disconnectedUserId);
 
         friendsIds.forEach((friendId) => {
-          this.io.to(String(friendId)).emit('peerStatusChange', {
+          this.io.to(`${friendId}`).emit('peerStatusChange', {
             userId: disconnectedUserId,
             type: 'disconnected',
           });

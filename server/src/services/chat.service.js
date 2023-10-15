@@ -78,7 +78,7 @@ async function getUserConversations(userId) {
   }
 }
 
-async function createOrUpdateConversation(thisUser, partnerUser) {
+async function establishOrModifyChat(thisUser, partnerUser) {
   try {
     return await Conversation.findOneAndUpdate(
       {
@@ -103,7 +103,7 @@ async function createOrUpdateConversation(thisUser, partnerUser) {
       }
     );
   } catch (error) {
-    console.error('Error createOrUpdateConversation:', error);
+    console.error('Error establishOrModifyChat:', error);
     throw error;
   }
 }
@@ -216,7 +216,7 @@ async function getConversationById(chatId) {
   }
 }
 
-async function doesUserConversationExists(chatId, userId) {
+async function doesUserChatExists(chatId, userId) {
   try {
     const conversation = await Conversation.findOne({
       _id: chatId,
@@ -225,18 +225,18 @@ async function doesUserConversationExists(chatId, userId) {
 
     return conversation || null;
   } catch (error) {
-    console.error('Error doesUserConversationExists:', error);
+    console.error('Error doesUserChatExists:', error);
     throw error;
   }
 }
 
 module.exports = {
-  doesUserConversationExists,
-  createOrUpdateConversation,
   resetUnreadMessagesCount,
+  establishOrModifyChat,
   doesConversationExist,
   addUserToConversation,
   getUserConversations,
   getConversationById,
+  doesUserChatExists,
   getPeersIdList,
 };

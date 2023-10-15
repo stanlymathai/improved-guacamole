@@ -37,9 +37,9 @@ const chatService = {
     }
   },
 
-  createChat: async (partnerId, socketId) => {
+  createChat: async (partnerId) => {
     try {
-      const { data } = await HTTP.post('/chats/init', { partnerId, socketId });
+      const { data } = await HTTP.post('/chats/init', { partnerId });
       return data;
     } catch (err) {
       throw err;

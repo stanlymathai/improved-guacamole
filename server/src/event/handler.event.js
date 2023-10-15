@@ -8,8 +8,7 @@ function handleChatUpdate(data, io) {
 
   try {
     participants.forEach((userId) => {
-      const userSockets = getUserSocketIds(String(userId));
-
+      const userSockets = getUserSocketIds(`${userId}`);
       if (userSockets) {
         const payload = adaptUserChatData(chat, userId);
 

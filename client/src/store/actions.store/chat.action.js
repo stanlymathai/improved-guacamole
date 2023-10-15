@@ -12,9 +12,9 @@ export const fetchChats = () => async (dispatch) => {
   }
 };
 
-export const createChat = (partnerId, socketId) => async (dispatch) => {
+export const createChat = (partnerId) => async (dispatch) => {
   try {
-    const { data, success } = await chatService.createChat(partnerId, socketId);
+    const { data, success } = await chatService.createChat(partnerId);
     if (success !== true) throw new Error(data.error.message);
 
     dispatch({ type: types.CREATE_CHAT, payload: data });

@@ -1,7 +1,4 @@
-'use strict';
-
 const mongoose = require('mongoose');
-const messageBus = require('../event');
 
 const {
   sendBadRequest,
@@ -13,19 +10,19 @@ const HTTP_STATUS = require('../utils/httpStatus.util');
 const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
 const {
+  doesUserChatExists,
   getConversationById,
   getUserConversations,
+  establishOrModifyChat,
   addUserToConversation,
-  doesUserConversationExists,
-  createOrUpdateConversation,
 } = require('../services/chat.service');
 
 const { adaptUserChatData } = require('../helpers/adaptUserData.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
-async function initiateOrUpdateConversation(req, res) {
+async function createOrReviseConversation(req, res) {
   try {
-    const { partnerId, socketId } = req.body;
+    const { partnerId } = req.body;
     if (!partnerId) {
       sendBadRequest(res, ERROR_MESSAGES.PARTNER_ID_IS_REQUIRED);
       return;
@@ -33,18 +30,17 @@ async function initiateOrUpdateConversation(req, res) {
     const thisUser = await validateAndGetUser(null, req);
     const partnerUser = await validateAndGetUser(partnerId);
 
-    if (String(thisUser._id) === String(partnerUser._id)) {
+    if (thisUser._id.equals(partnerUser._id)) {
       sendBadRequest(res, ERROR_MESSAGES.SELF_CHAT_NOT_ALLOWED);
       return;
     }
 
-    const result = await createOrUpdateConversation(thisUser, partnerUser);
+    const result = await establishOrModifyChat(thisUser, partnerUser);
     const chat = await getConversationById(result._id);
 
     const data = adaptUserChatData(chat, thisUser._id);
 
-    sendSuccessResponse(res, data);
-    return messageBus.emitChatUpdate({ chat, socketId });
+    return sendSuccessResponse(res, data);
   } catch (error) {
     return sendInternalServerError(res, error.message);
   }
@@ -87,10 +83,7 @@ async function addUserToChat(req, res) {
     const thisUser = await validateAndGetUser(null, req);
     const conversationId = new mongoose.Types.ObjectId(chatId);
 
-    const conversation = await doesUserConversationExists(
-      conversationId,
-      thisUser._id
-    );
+    const conversation = await doesUserChatExists(conversationId, thisUser._id);
 
     if (!conversation)
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -100,9 +93,7 @@ async function addUserToChat(req, res) {
 
     const user = await validateAndGetUser(userId);
 
-    if (
-      conversation.participants.find((u) => String(u._id) === String(user._id))
-    )
+    if (conversation.participants.find((u) => u._id.equals(user._id)))
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: ERROR_MESSAGES.USER_ALREADY_IN_CHAT,
@@ -121,7 +112,7 @@ async function addUserToChat(req, res) {
 }
 
 module.exports = {
-  initiateOrUpdateConversation,
+  createOrReviseConversation,
   fetchUserConversations,
   addUserToChat,
 };
