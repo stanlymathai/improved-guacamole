@@ -2,12 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 import chatService from '../../../../services/chat.service';
 import debounce from '../../../../utils/debounce.util';
-
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 
 import './messageInput.scss';
 
@@ -20,6 +19,7 @@ const MessageInput = () => {
 
   const [message, setMessage] = useState('');
   const [image, setImage] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const activationThreshold = 3;
@@ -27,9 +27,12 @@ const MessageInput = () => {
 
   useEffect(() => {
     return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
       clearTimeout(typingTimeoutRef.current);
     };
-  }, []);
+  }, [imagePreview]);
 
   const handleOnBlur = () => {
     socket.emit('stopTyping', { chatId });
@@ -59,7 +62,6 @@ const MessageInput = () => {
     const value = e.target.value;
     if (value.length > 0 && e.key === 'Enter') {
       socket.emit('stopTyping', { chatId });
-
       clearTimeout(typingTimeoutRef.current);
 
       chatService
@@ -68,23 +70,14 @@ const MessageInput = () => {
           if (success) setMessage('');
         })
         .catch((e) => console.log(e));
-
-      // chatService
-      //   .createMessage(chatId, message, socket.id)
-      //   .then(({ success, data }) => {
-      //     if (success) {
-      //       setMessage('');
-      //       // const _msg = {
-      //       //   ...data.lastMessage,
-      //       //   _id: data.lastMessage._id,
-      //       //   media: '',
-      //       // };
-      //       // setMessages((prev) => [...prev, _msg]);
-      //       dispatch(handleChatUpdate(data));
-      //     }
-      //   })
-      //   .catch((err) => console.log(err));
     }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    const previewURL = URL.createObjectURL(file);
+    setImagePreview(previewURL);
   };
 
   const handleImageUpload = () => {
@@ -92,50 +85,20 @@ const MessageInput = () => {
     formData.append('chatId', chatId);
     formData.append('image', image);
 
-    console.log('handleImageUpload', formData);
+    chatService.uploadImage(formData).then(({ success }) => {
+      if (success) {
+        setImage(null);
+        setImagePreview(null);
+      }
+    });
   };
 
-  const showNewMessage = () => {
-    console.log('showNewMessage');
+  const handleFileUpload = () => {
+    fileUpload.current.click();
   };
-
-  const showNewMessageNotification = false;
 
   return (
     <div id="input-container">
-      <div id="image-upload-container">
-        <div>
-          {showNewMessageNotification ? (
-            <div id="message-notification" onClick={showNewMessage}>
-              <FontAwesomeIcon icon="bell" className="fa-icon" />
-              <p className="m-0">new message</p>
-            </div>
-          ) : null}
-        </div>
-
-        <div id="image-upload">
-          {image.name ? (
-            <div id="image-details">
-              <p className="m-0">{image.name}</p>
-              <FontAwesomeIcon
-                onClick={handleImageUpload}
-                icon="upload"
-                className="fa-icon"
-              />
-              <FontAwesomeIcon
-                onClick={() => setImage('')}
-                icon="times"
-                className="fa-icon"
-              />
-            </div>
-          ) : null}
-          <FontAwesomeIcon
-            onClick={() => fileUpload.current.click()}
-            icon={['far', 'image']}
-            className="fa-icon"
-          />
-        </div>
-      </div>
       <div id="message-input">
         <input
           ref={msgInput}
@@ -149,11 +112,59 @@ const MessageInput = () => {
         <FontAwesomeIcon icon={['far', 'smile']} className="fa-icon" />
       </div>
 
+      <div id="image-upload-container">
+        {!imagePreview ? (
+          <div id="image-upload">
+            <FontAwesomeIcon
+              onClick={handleFileUpload}
+              icon={['far', 'image']}
+              className="fa-icon"
+            />
+            <span onClick={handleFileUpload}>Image</span>
+          </div>
+        ) : null}
+
+        <div id="image-preview-container">
+          {imagePreview ? (
+            <div>
+              <img
+                src={imagePreview}
+                alt="Selected for upload"
+                style={{ width: '100px', height: '100px' }}
+              />
+              <FontAwesomeIcon
+                onClick={handleImageUpload}
+                icon="upload"
+                className="fa-icon"
+              />
+              <span onClick={handleImageUpload}>Upload</span>
+
+              <FontAwesomeIcon
+                onClick={() => {
+                  setImage(null);
+                  setImagePreview(null);
+                }}
+                icon="times"
+                className="fa-icon"
+              />
+              <span
+                onClick={() => {
+                  setImage(null);
+                  setImagePreview(null);
+                }}
+              >
+                Remove
+              </span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
       <input
         id="chat-image"
         ref={fileUpload}
         type="file"
-        onChange={(e) => setImage(e.target.files[0])}
+        onChange={handleImageChange}
       />
 
       {showEmojiPicker ? (

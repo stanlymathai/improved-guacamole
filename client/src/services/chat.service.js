@@ -64,17 +64,16 @@ const chatService = {
     }
   },
 
-  uploadImage: (data) => {
+  uploadImage: async (payload) => {
     const headers = {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     };
-    return HTTP.post('/chats/upload-image', data, headers)
-      .then(({ data }) => {
-        return data.url;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    try {
+      const { data } = await HTTP.post('/chats/upload', payload, headers);
+      return data;
+    } catch (err) {
+      throw err;
+    }
   },
 };
 

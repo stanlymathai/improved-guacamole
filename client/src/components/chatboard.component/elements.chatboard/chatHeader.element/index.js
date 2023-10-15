@@ -69,11 +69,12 @@ const ChatHeader = ({ chat }) => {
           );
         })}
       </div>
-      <FontAwesomeIcon
+      {/* Commenting out temporarily until Monitalks requests their inclusion. */}
+      {/* <FontAwesomeIcon
         onClick={() => setShowChatOptions(!showChatOptions)}
         icon={['fas', 'ellipsis-v']}
         className="fa-icon"
-      />
+      /> */}
       {showChatOptions ? (
         <div id="settings">
           <div onClick={() => setShowAddFriendModal(true)}>

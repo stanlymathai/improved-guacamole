@@ -1,14 +1,14 @@
 const multer = require('multer');
-const fs = require('fs');
 
 const USER_FILE_PATH = 'uploads/user/';
+const CHAT_FILE_PATH = 'uploads/chat/';
 
 const getFileType = (file) => {
   const mimeType = file.mimetype.split('/');
   return mimeType[mimeType.length - 1];
 };
 
-const generateFileName = (req, file, cb) => {
+const generateFileName = (_, file, cb) => {
   const extension = getFileType(file);
 
   const filename =
@@ -16,7 +16,7 @@ const generateFileName = (req, file, cb) => {
   cb(null, file.fieldname + '-' + filename);
 };
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_, file, cb) => {
   const extension = getFileType(file);
 
   const allowedType = /jpeg|jpg|png/;
@@ -39,22 +39,9 @@ exports.userFile = (() => {
   return multer({ storage, fileFilter }).single('avatar');
 })();
 
-exports.chatFile = ((req, res, next) => {
+exports.chatFile = (() => {
   const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      const { id } = req.body;
-      const dest = `uploads/chat/${id}`;
-
-      fs.access(dest, (error) => {
-        if (error) {
-          return fs.mkdir(dest, (error) => {
-            cb(error, dest);
-          });
-        } else {
-          return cb(null, dest);
-        }
-      });
-    },
+    destination: CHAT_FILE_PATH,
     filename: generateFileName,
   });
 

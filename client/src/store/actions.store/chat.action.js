@@ -27,11 +27,9 @@ export const createChat = (partnerId) => async (dispatch) => {
 
 export const fetchMessages = (chatId, page) => async (dispatch) => {
   try {
-    const { data, success, pagination } = await chatService.fetchMessages(
-      chatId,
-      page
-    );
+    const { data: _data } = await chatService.fetchMessages(chatId, page);
 
+    const { data, success, pagination } = _data;
     if (success !== true) throw new Error(data.error.message);
 
     dispatch({ type: types.SET_MESSAGES, payload: data });
@@ -60,7 +58,6 @@ export const setMessages = (messages) => (dispatch) => {
 };
 
 export const handleChatUpdate = (data) => (dispatch) => {
-  console.log('handleChatUpdate knri', data);
   dispatch({ type: types.UPDATE_OR_ADD_CHAT, payload: data });
 };
 

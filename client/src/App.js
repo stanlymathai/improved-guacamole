@@ -5,15 +5,13 @@ import './App.scss';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faSmile, faImage } from '@fortawesome/free-regular-svg-icons';
 import {
-  faSpinner,
-  faEllipsisV,
-  faUserPlus,
-  faSignOutAlt,
-  faTrash,
-  faCaretDown,
-  faUpload,
-  faTimes,
-  faBell,
+  faSpinner, // for loading icon 
+  faEllipsisV, // vertical dots for chat options (temporarlily commented out)
+  faUserPlus, // add user to group chat
+  faSignOutAlt, // leave from group chat
+  faTrash, // remove use from group chat
+  faUpload, // upload icon for image upload in chat
+  faTimes, // close icon for image upload in chat
 } from '@fortawesome/free-solid-svg-icons';
 
 // Components
@@ -29,10 +27,8 @@ library.add(
   faUserPlus,
   faSignOutAlt,
   faTrash,
-  faCaretDown,
   faUpload,
-  faTimes,
-  faBell
+  faTimes
 );
 
 const MODES = {

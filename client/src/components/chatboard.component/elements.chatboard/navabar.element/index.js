@@ -59,7 +59,6 @@ const Navbar = () => {
         <p>
           {user.firstName} {user.lastName}
         </p>
-        <FontAwesomeIcon icon="caret-down" className="fa-icon" />
 
         {showProfileOptions && (
           <div id="profile-options">

@@ -1,8 +1,11 @@
 const isValidObjectId = require('mongoose').isValidObjectId;
+
+const ERROR_MESSAGES = require('../utils/errorMessage.util');
 const messageBus = require('../event');
 
 const {
   processMessage,
+  handleFileUpload,
   fetchPaginatedMessages,
 } = require('../services/message.service');
 
@@ -18,52 +21,46 @@ const {
   sendInternalServerError,
 } = require('../utils/responseHandlers.util');
 
+const pushToS3 = require('../helpers/uploadToS3.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
-
-const HTTP_STATUS = require('../utils/httpStatus.util');
-const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
 async function createNewMessage(req, res) {
   try {
-    const { chatId, text, media } = req.body;
+    const { chatId, text } = req.body;
     if (!chatId || !isValidObjectId(chatId)) {
       sendBadRequest(res, ERROR_MESSAGES.INVALID_CHAT_ID);
       return;
     }
 
-    if (!text && !media) {
-      sendBadRequest(res, ERROR_MESSAGES.MISSING_TEXT_OR_MEDIA);
+    if (!text) {
+      sendBadRequest(res, ERROR_MESSAGES.INVALID_CHAT_TEXT);
       return;
     }
 
     const thisUser = await validateAndGetUser(null, req);
-    const result = await processMessage(chatId, text, media, thisUser);
+    const result = await processMessage(chatId, text, thisUser);
     const chat = await getConversationById(result.chatId);
 
     sendSuccessResponse(res);
     messageBus.emitChatUpdate({ chat });
   } catch (error) {
-    return sendInternalServerError(res, error.message);
+    sendInternalServerError(res, error.message);
   }
 }
 
-async function fetchConversationMessages(req, res) {
+async function fetchChatMessages(req, res) {
   const limit = 10;
   const page = Math.max(1, Number(req.query.page) || 1);
   const chatId = req.query.id;
 
   if (!isValidObjectId(chatId)) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      success: false,
-      error: ERROR_MESSAGES.INVALID_CHAT_ID,
-    });
+    sendBadRequest(res, ERROR_MESSAGES.INVALID_CHAT_ID);
+    return;
   }
 
   if (!(await doesConversationExist(chatId))) {
-    return res.status(HTTP_STATUS.NOT_FOUND).json({
-      success: false,
-      error: ERROR_MESSAGES.CHAT_NOT_FOUND,
-    });
+    sendBadRequest(res, ERROR_MESSAGES.CHAT_NOT_FOUND);
+    return;
   }
 
   try {
@@ -74,7 +71,8 @@ async function fetchConversationMessages(req, res) {
 
     const result = await fetchPaginatedMessages(chatId, page, limit);
 
-    const responseData = {
+    const payload = {
+      success: true,
       data: result.docs.reverse(),
       pagination: {
         page: result.page,
@@ -84,22 +82,56 @@ async function fetchConversationMessages(req, res) {
         totalDocs: result.totalDocs,
       },
     };
-
-    res.status(HTTP_STATUS.SUCCESS).json({ success: true, ...responseData });
+    sendSuccessResponse(res, payload);
   } catch (error) {
-    let errorCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
-    if (error.message === ERROR_MESSAGES.CHAT_NOT_FOUND) {
-      errorCode = HTTP_STATUS.NOT_FOUND;
+    sendInternalServerError(res, error.message);
+  }
+}
+
+async function uploadChatFile(req, res) {
+  try {
+    const { chatId } = req.body;
+    if (!chatId || !isValidObjectId(chatId)) {
+      sendBadRequest(res, ERROR_MESSAGES.INVALID_CHAT_ID);
+      return;
     }
 
-    res.status(errorCode).json({
-      success: false,
-      error: error.message,
-    });
+    if (
+      req.file &&
+      req.file.path &&
+      req.file.filename &&
+      req.file.filename.length > 0
+    ) {
+      const s3Upload = await pushToS3({
+        fileName: req.file.filename,
+        filePath: req.file.path,
+      });
+
+      if (s3Upload.error) {
+        sendInternalServerError(res, s3Upload.error || ERROR_MESSAGES.S3_ERROR);
+        return;
+      }
+
+      if (s3Upload.$metadata.httpStatusCode === 200) {
+        const thisUser = await validateAndGetUser(null, req);
+        const result = await handleFileUpload(
+          chatId,
+          thisUser,
+          s3Upload.upload
+        );
+        const chat = await getConversationById(result.chatId);
+
+        sendSuccessResponse(res);
+        messageBus.emitChatUpdate({ chat });
+      } else sendInternalServerError(res, ERROR_MESSAGES.S3_ERROR);
+    }
+  } catch (error) {
+    return sendInternalServerError(res, error.message);
   }
 }
 
 module.exports = {
-  fetchConversationMessages,
+  fetchChatMessages,
   createNewMessage,
+  uploadChatFile,
 };

@@ -18,15 +18,18 @@ const Message = ({ message, user }) => {
             {message.sender.firstName} {message.sender.lastName}
           </h6>
         ) : null}
-        {message.type === 'text' ? (
-          <p className="m-0">{message.text}</p>
-        ) : (
-          <img
-            src={message.media}
-            alt={`Uploaded by ${message.sender.firstName}`}
-            role="img"
-          />
-        )}
+        {message.type === 'text' ? <p className="m-0">{message.text}</p> : null}
+        {message.type === 'image' ? (
+          <a href={message.media} target="_blank">
+            <img
+              role="img"
+              border="0"
+              align="center"
+              src={message.media}
+              alt={`Uploaded by ${message.sender.firstName}`}
+            />
+          </a>
+        ) : null}
         <span className="timestamp">{formattedTime}</span>
       </div>
     </li>

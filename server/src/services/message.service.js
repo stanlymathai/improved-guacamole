@@ -20,7 +20,7 @@ async function fetchPaginatedMessages(chatId, page, limit) {
   return await Message.paginate({ conversation: chatId }, options);
 }
 
-async function processMessage(chatId, text, media, user) {
+async function processMessage(chatId, text, user) {
   const chat = await Conversation.findOne({
     _id: chatId,
     participants: { $in: [user._id] },
@@ -33,8 +33,27 @@ async function processMessage(chatId, text, media, user) {
   await Message.create({
     conversation: chat._id,
     sender: user._id,
-    media,
     text,
+  });
+
+  return { chatId: chat._id };
+}
+
+async function handleFileUpload(chatId, user, media) {
+  const chat = await Conversation.findOne({
+    _id: chatId,
+    participants: { $in: [user._id] },
+  });
+
+  if (!chat) {
+    throw new Error(ERROR_MESSAGES.CHAT_NOT_FOUND);
+  }
+
+  await Message.create({
+    conversation: chat._id,
+    sender: user._id,
+    type: 'image',
+    media,
   });
 
   return { chatId: chat._id };
@@ -42,5 +61,6 @@ async function processMessage(chatId, text, media, user) {
 
 module.exports = {
   fetchPaginatedMessages,
+  handleFileUpload,
   processMessage,
 };

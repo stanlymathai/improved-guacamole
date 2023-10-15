@@ -9,8 +9,8 @@ import './Auth.scss';
 const Login = ({ setMode }) => {
   const dispatch = useDispatch();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('lainok@altes.com');
+  const [password, setPassword] = useState('lainok@altes.com');
 
   const submitForm = (e) => {
     e.preventDefault();
