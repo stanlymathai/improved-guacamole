@@ -3,7 +3,15 @@ import * as types from '../types.store/chat.type';
 const initialState = {
   chats: [],
   socket: {},
+  messages: [],
   thisChat: null,
+  pagination: {
+    page: 1,
+    totalDocs: 0,
+    totalPages: 0,
+    hasPrevPage: false,
+    hasNextPage: false,
+  },
 };
 
 const chatReducer = (state = initialState, action) => {
@@ -26,6 +34,34 @@ const chatReducer = (state = initialState, action) => {
       return {
         ...state,
         socket: payload,
+      };
+    }
+
+    case types.SET_MESSAGES: {
+      const { messages } = state;
+      const { page } = state.pagination;
+      const _messages = page === 1 ? payload : [...payload, ...messages];
+
+      return {
+        ...state,
+        messages: _messages,
+      };
+    }
+
+    case types.SET_PAGINATION: {
+      return {
+        ...state,
+        pagination: { ...payload },
+      };
+    }
+
+    case types.SET_PAGE: {
+      const { pagination } = state;
+      const { page } = payload;
+
+      return {
+        ...state,
+        pagination: { ...pagination, page },
       };
     }
 

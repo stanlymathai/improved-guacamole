@@ -13,7 +13,7 @@ function sendInternalServerError(res, error) {
   });
 }
 
-function sendSuccessResponse(res, data) {
+function sendSuccessResponse(res, data = []) {
   return res.status(HTTP_STATUS.SUCCESS).json({
     success: true,
     data: data,

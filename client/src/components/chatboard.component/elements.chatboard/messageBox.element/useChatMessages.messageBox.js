@@ -1,50 +1,50 @@
 import { useState, useEffect } from 'react';
-import chatService from '../../../../services/chat.service';
+const { useSelector, useDispatch } = require('react-redux');
 
-const useChatMessages = ({ chat, setMessages }) => {
+const {
+  setPage,
+  setMessages,
+  fetchMessages,
+} = require('../../../../store/actions.store/chat.action');
+
+const useChatMessages = () => {
+  const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
+
+  const thisChat = useSelector((state) => state.chat.thisChat);
+  const { page } = useSelector((state) => state.chat.pagination);
 
   useEffect(() => {
-    if (!chat) return;
+    if (!thisChat) return;
 
-    setMessages([]);
-    setPage(1);
-  }, [chat]);
+    dispatch(setMessages([]));
+    dispatch(setPage(1));
+  }, [thisChat]);
 
   useEffect(() => {
-    if (!chat) return;
+    if (!thisChat) return;
 
     setError(null);
     setLoading(true);
 
-    chatService
-      .fetchMessages(chat, page)
-      .then(({ success, data, pagination }) => {
+    dispatch(fetchMessages(thisChat, page))
+      .then(({ success }) => {
         if (success) {
-          setMessages((prev) => (page === 1 ? data : [...data, ...prev]));
-          setHasMore(pagination.hasNextPage);
+          setLoading(false);
         }
-        setLoading(false);
       })
       .catch((e) => {
+        setLoading(false);
+
         const errorMessage =
           e.response?.data?.message ||
           'Failed to load messages. Please try again.';
         setError(errorMessage);
-        setLoading(false);
       });
-  }, [chat, page]);
+  }, [thisChat, page]);
 
-  return {
-    page,
-    error,
-    loading,
-    hasMore,
-    setPage,
-  };
+  return { error, loading };
 };
 
 export default useChatMessages;

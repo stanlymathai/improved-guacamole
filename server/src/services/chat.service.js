@@ -54,7 +54,12 @@ async function getUserConversations(userId) {
               },
             },
             { $unwind: { path: '$sender' } },
-            { $project: { sender: 1, text: 1, type: 1, createdAt: 1, _id: 0 } },
+            {
+              $project: {
+                conversation: 0,
+                originalContent: 0,
+              },
+            },
           ],
           localField: 'lastMessage',
           foreignField: '_id',
@@ -193,7 +198,12 @@ async function getConversationById(chatId) {
               },
             },
             { $unwind: { path: '$sender' } },
-            { $project: { sender: 1, text: 1, type: 1, createdAt: 1 } },
+            {
+              $project: {
+                conversation: 0,
+                originalContent: 0,
+              },
+            },
           ],
           localField: 'lastMessage',
           foreignField: '_id',

@@ -18,7 +18,6 @@ const {
   sendInternalServerError,
 } = require('../utils/responseHandlers.util');
 
-const { adaptUserChatData } = require('../helpers/adaptUserData.helper');
 const validateAndGetUser = require('../helpers/validateAndGetUser.helper');
 
 const HTTP_STATUS = require('../utils/httpStatus.util');
@@ -26,7 +25,7 @@ const ERROR_MESSAGES = require('../utils/errorMessage.util');
 
 async function createNewMessage(req, res) {
   try {
-    const { chatId, text, media, socketId } = req.body;
+    const { chatId, text, media } = req.body;
     if (!chatId || !isValidObjectId(chatId)) {
       sendBadRequest(res, ERROR_MESSAGES.INVALID_CHAT_ID);
       return;
@@ -38,13 +37,11 @@ async function createNewMessage(req, res) {
     }
 
     const thisUser = await validateAndGetUser(null, req);
-    const response = await processMessage(chatId, text, media, thisUser);
-    const chat = await getConversationById(response.chatId);
+    const result = await processMessage(chatId, text, media, thisUser);
+    const chat = await getConversationById(result.chatId);
 
-    const data = adaptUserChatData(chat, thisUser._id);
-
-    sendSuccessResponse(res, data);
-    return messageBus.emitChatUpdate({ chat, socketId });
+    sendSuccessResponse(res);
+    messageBus.emitChatUpdate({ chat });
   } catch (error) {
     return sendInternalServerError(res, error.message);
   }

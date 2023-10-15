@@ -1,16 +1,19 @@
 import { useRef, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+
 import debounce from '../../../../utils/debounce.util';
 
 const useInfiniteScroll = ({
   hasMore,
   page,
   setPage,
-  messages,
   DEBOUNCE_DELAY,
   SCROLL_THRESHOLD,
 }) => {
   const messageBoxRef = useRef(null);
   const [isAtTop, setIsAtTop] = useState(false);
+
+  const messages = useSelector((state) => state.chat.messages);
 
   useEffect(() => {
     const handleScroll = (e) => {

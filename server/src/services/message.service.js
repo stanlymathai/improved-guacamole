@@ -21,38 +21,23 @@ async function fetchPaginatedMessages(chatId, page, limit) {
 }
 
 async function processMessage(chatId, text, media, user) {
-  const conversation = await Conversation.findOne({
+  const chat = await Conversation.findOne({
     _id: chatId,
     participants: { $in: [user._id] },
   });
 
-  if (!conversation) {
+  if (!chat) {
     throw new Error(ERROR_MESSAGES.CHAT_NOT_FOUND);
   }
 
-  const result = await Message.create({
-    conversation: conversation._id,
+  await Message.create({
+    conversation: chat._id,
     sender: user._id,
     media,
     text,
   });
 
-  const response = {
-    _id: `${result._id}`,
-    type: result.type,
-    text: result.text,
-    media: result.media,
-    sender: {
-      _id: `${user._id}`,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar,
-    },
-    createdAt: result.createdAt,
-    chatId: conversation._id,
-  };
-
-  return response;
+  return { chatId: chat._id };
 }
 
 module.exports = {

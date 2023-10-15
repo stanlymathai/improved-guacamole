@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+
 import Message from '../message.element';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useInfiniteScroll from './useInfiniteScroll.messageBox';
@@ -9,11 +11,11 @@ import './messageBox.scss';
 const DEBOUNCE_DELAY = 75;
 const SCROLL_THRESHOLD = 10;
 
-const MessageBox = ({ chat, user, messages, setMessages }) => {
-  const { error, loading, hasMore, page, setPage } = useChatMessages({
-    chat,
-    setMessages,
-  });
+const MessageBox = () => {
+  const thisUser = useSelector((state) => state.auth.user);
+  const messages = useSelector((state) => state.chat.messages);
+
+  const { error, loading, hasMore, page, setPage } = useChatMessages();
 
   const { messageBoxRef, isAtTop } = useInfiniteScroll({
     setPage,
@@ -37,7 +39,7 @@ const MessageBox = ({ chat, user, messages, setMessages }) => {
           )}
           <ul aria-label="Chat messages">
             {messages.map((_msg) => (
-              <Message key={_msg._id} message={_msg} user={user} />
+              <Message key={_msg._id} message={_msg} user={thisUser} />
             ))}
           </ul>
         </>

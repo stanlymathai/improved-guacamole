@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { handleChatUpdate } from '../../../../store/actions.store/chat.action';
 import chatService from '../../../../services/chat.service';
 import debounce from '../../../../utils/debounce.util';
 
@@ -12,13 +11,12 @@ import Picker from '@emoji-mart/react';
 
 import './messageInput.scss';
 
-const MessageInput = ({ setMessages }) => {
-  const dispatch = useDispatch();
+const MessageInput = () => {
   const fileUpload = useRef();
   const msgInput = useRef();
 
-  const chatId = useSelector((state) => state.chat.thisChat);
   const socket = useSelector((state) => state.chat.socket);
+  const chatId = useSelector((state) => state.chat.thisChat);
 
   const [message, setMessage] = useState('');
   const [image, setImage] = useState('');
@@ -65,20 +63,27 @@ const MessageInput = ({ setMessages }) => {
       clearTimeout(typingTimeoutRef.current);
 
       chatService
-        .createNewMessage(chatId, message, socket.id)
-        .then(({ success, data }) => {
-          if (success) {
-            setMessage('');
-            const _msg = {
-              ...data.lastMessage,
-              _id: data.lastMessage._id,
-              media: '',
-            };
-            setMessages((prev) => [...prev, _msg]);
-            dispatch(handleChatUpdate(data));
-          }
+        .createMessage(chatId, message)
+        .then(({ success }) => {
+          if (success) setMessage('');
         })
-        .catch((err) => console.log(err));
+        .catch((e) => console.log(e));
+
+      // chatService
+      //   .createMessage(chatId, message, socket.id)
+      //   .then(({ success, data }) => {
+      //     if (success) {
+      //       setMessage('');
+      //       // const _msg = {
+      //       //   ...data.lastMessage,
+      //       //   _id: data.lastMessage._id,
+      //       //   media: '',
+      //       // };
+      //       // setMessages((prev) => [...prev, _msg]);
+      //       dispatch(handleChatUpdate(data));
+      //     }
+      //   })
+      //   .catch((err) => console.log(err));
     }
   };
 

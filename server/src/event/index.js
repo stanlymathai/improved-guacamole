@@ -1,8 +1,9 @@
 const EventEmitter = require('node:events');
+const { CHAT_UPDATE } = require('../socket/event.socket');
 
 class MessageBus extends EventEmitter {
   emitChatUpdate(message) {
-    this.emit('chat:update', message);
+    this.emit(CHAT_UPDATE, message);
   }
 }
 

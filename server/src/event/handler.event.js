@@ -3,7 +3,7 @@ const { adaptUserChatData } = require('../helpers/adaptUserData.helper');
 const { CHAT_UPDATE } = require('../socket/event.socket');
 
 function handleChatUpdate(data, io) {
-  const { chat = {}, socketId } = data;
+  const { chat = {} } = data;
   const { participants = [] } = chat;
 
   try {
@@ -12,11 +12,9 @@ function handleChatUpdate(data, io) {
       if (userSockets) {
         const payload = adaptUserChatData(chat, userId);
 
-        userSockets.forEach((socId) => {
-          if (socId !== socketId) {
-            io.to(socId).emit(CHAT_UPDATE, payload);
-          }
-        });
+        userSockets.forEach((socket) =>
+          io.to(socket).emit(CHAT_UPDATE, payload)
+        );
       }
     });
   } catch (error) {

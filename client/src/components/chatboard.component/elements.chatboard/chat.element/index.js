@@ -10,7 +10,7 @@ const lastMessage = (msg, thisUser) => {
   if (!msg) return '';
 
   const sender = msg.sender._id === thisUser.id ? 'You' : msg.sender.firstName;
-  let message = msg.type === 'text' ? msg.text : 'File';
+  let message = msg.type === 'text' ? msg.text : msg.type + ' uploaded';
 
   const lengthLimit = 20;
   if (message.length > lengthLimit) {

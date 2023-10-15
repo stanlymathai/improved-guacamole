@@ -25,6 +25,24 @@ export const createChat = (partnerId) => async (dispatch) => {
   }
 };
 
+export const fetchMessages = (chatId, page) => async (dispatch) => {
+  try {
+    const { data, success, pagination } = await chatService.fetchMessages(
+      chatId,
+      page
+    );
+
+    if (success !== true) throw new Error(data.error.message);
+
+    dispatch({ type: types.SET_MESSAGES, payload: data });
+    dispatch({ type: types.SET_PAGINATION, payload: pagination });
+
+    return { success };
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const handleTypingStatus = (data) => (dispatch) => {
   dispatch({
     type: types.HANDLE_TYPING_STATUS,
@@ -32,8 +50,17 @@ export const handleTypingStatus = (data) => (dispatch) => {
   });
 };
 
+export const setPage = (page) => (dispatch) => {
+  console.log('page knri', page);
+  dispatch({ type: types.SET_PAGE, payload: page });
+};
+
+export const setMessages = (messages) => (dispatch) => {
+  dispatch({ type: types.SET_MESSAGES, payload: messages });
+};
+
 export const handleChatUpdate = (data) => (dispatch) => {
-  console.log('handleChatUpdate', data);
+  console.log('handleChatUpdate knri', data);
   dispatch({ type: types.HANDLE_CHAT_UPDATE, payload: data });
 };
 

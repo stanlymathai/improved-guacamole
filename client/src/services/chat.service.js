@@ -55,9 +55,9 @@ const chatService = {
     }
   },
 
-  createNewMessage: async (chatId, text, socketId) => {
+  createMessage: async (chatId, text) => {
     try {
-      const { data } = await HTTP.post('/chats/', { chatId, text, socketId });
+      const { data } = await HTTP.post('/chats/', { chatId, text });
       return data;
     } catch (err) {
       throw err;

@@ -1,15 +1,14 @@
+export const SET_PAGE = 'SET_PAGE';
 export const SET_SOCKET = 'SET_SOCKET';
-
-export const CREATE_CHAT = 'CREATE_CHAT';
-
-export const FETCH_CHATS = 'FETCH_CHATS';
-
-export const FETCH_MESSAGES = 'FETCH_MESSAGES';
-
+export const SET_MESSAGES = 'SET_MESSAGES';
+export const SET_PAGINATION = 'SET_PAGINATION';
 export const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
 
+export const CREATE_CHAT = 'CREATE_CHAT';
+export const FETCH_CHATS = 'FETCH_CHATS';
+
+export const ADD_MESSAGE = 'ADD_MESSAGE';
+
 export const HANDLE_CONNECTION = 'HANDLE_CONNECTION';
-
 export const HANDLE_CHAT_UPDATE = 'HANDLE_CHAT_UPDATE';
-
 export const HANDLE_TYPING_STATUS = 'HANDLE_TYPING_STATUS';

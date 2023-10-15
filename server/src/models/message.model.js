@@ -74,7 +74,7 @@ messageSchema.post('save', function (doc, next) {
     // clear the actual content media/text
     this.text = '';
     this.media = '';
-    return next(); // return from middleware after handling DELETED status
+    return next();
   }
 
   // Use atomic operations to update lastMessage and increment unread counts.
