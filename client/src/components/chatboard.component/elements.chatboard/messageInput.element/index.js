@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import chatService from '../../../../services/chat.service';
 import debounce from '../../../../utils/debounce.util';
@@ -20,7 +20,7 @@ const MessageInput = () => {
   const [message, setMessage] = useState('');
   const [image, setImage] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiVisible, setEmojiVisible] = useState(false);
 
   const activationThreshold = 3;
   const typingTimeoutRef = useRef(null);
@@ -97,23 +97,38 @@ const MessageInput = () => {
     fileUpload.current.click();
   };
 
+  const handleEmojiClick = () => {
+    setEmojiVisible(!emojiVisible);
+  };
+
+  const handleEmojiSelect = (e) => {
+    const emoji = e.native;
+    setMessage(message + emoji);
+    msgInput.current.focus();
+    setEmojiVisible(false);
+  };
+
   return (
     <div id="input-container">
       <div id="message-input">
         <input
+          type="text"
           ref={msgInput}
           value={message}
-          type="text"
           placeholder="Message..."
           onBlur={handleOnBlur}
           onKeyDown={(e) => handleOnKeyDown(e)}
           onChange={(e) => handleOnChange(e)}
         />
-        <FontAwesomeIcon icon={['far', 'smile']} className="fa-icon" />
+        <FontAwesomeIcon
+          icon={['far', 'smile']}
+          className="fa-icon"
+          onClick={handleEmojiClick}
+        />
       </div>
 
       <div id="image-upload-container">
-        {!imagePreview ? (
+        {!imagePreview && !emojiVisible ? (
           <div id="image-upload">
             <FontAwesomeIcon
               onClick={handleFileUpload}
@@ -161,19 +176,13 @@ const MessageInput = () => {
       </div>
 
       <input
+        type="file"
         id="chat-image"
         ref={fileUpload}
-        type="file"
         onChange={handleImageChange}
       />
-
-      {showEmojiPicker ? (
-        <Picker
-          data={data}
-          emoji="point_up"
-          title="Pick your emoji..."
-          style={{ position: 'absolute', bottom: '20px', right: '20px' }}
-        />
+      {emojiVisible ? (
+        <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
       ) : null}
     </div>
   );
