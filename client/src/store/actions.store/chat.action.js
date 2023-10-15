@@ -61,7 +61,7 @@ export const setMessages = (messages) => (dispatch) => {
 
 export const handleChatUpdate = (data) => (dispatch) => {
   console.log('handleChatUpdate knri', data);
-  dispatch({ type: types.HANDLE_CHAT_UPDATE, payload: data });
+  dispatch({ type: types.UPDATE_OR_ADD_CHAT, payload: data });
 };
 
 export const handlePeerStatusChange = (userId, type) => (dispatch) => {

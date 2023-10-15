@@ -67,33 +67,33 @@ const chatReducer = (state = initialState, action) => {
 
     case types.CREATE_CHAT: {
       const { chats } = state;
-      const updatedChats = [payload, ...chats];
+      const _chats = [payload, ...chats];
 
       return {
         ...state,
-        chats: updatedChats,
+        chats: _chats,
       };
     }
 
     case types.HANDLE_TYPING_STATUS: {
       const { chatId, userId, isTyping } = payload;
 
-      const newChats = [...state.chats];
-      for (let i = 0; i < newChats.length; i++) {
-        if (newChats[i]._id === chatId) {
-          for (let j = 0; j < newChats[i].users.length; j++) {
-            if (newChats[i].users[j]._id === userId) {
-              newChats[i].users[j].isTyping = isTyping;
-              return {
-                ...state,
-                chats: newChats,
-              };
-            }
-          }
-        }
-      }
+      const _chats = state.chats.map((chat) => {
+        if (chat._id !== chatId) return chat;
 
-      return state;
+        const _users = chat.users.map((user) => {
+          if (user._id !== userId) return user;
+
+          return { ...user, isTyping: isTyping };
+        });
+
+        return { ...chat, users: _users };
+      });
+
+      return {
+        ...state,
+        chats: _chats,
+      };
     }
 
     case types.HANDLE_CONNECTION: {
@@ -104,38 +104,50 @@ const chatReducer = (state = initialState, action) => {
 
       const isOnline = type === 'connected';
 
-      const updatedChats = chats.map((chat) => {
-        const updatedUsers = chat.users.map((user) =>
+      const _chats = chats.map((chat) => {
+        const _users = chat.users.map((user) =>
           user._id === userId ? { ...user, isOnline } : user
         );
 
-        return { ...chat, users: updatedUsers };
+        return { ...chat, users: _users };
       });
 
       return {
         ...state,
-        chats: updatedChats,
+        chats: _chats,
       };
     }
 
-    case types.HANDLE_CHAT_UPDATE: {
+    case types.UPDATE_OR_ADD_CHAT: {
       const { chats } = state;
 
-      let chatExists = false;
+      let chatAdded = false;
 
-      const updatedChats = chats.map((chat) => {
+      const _chats = chats.reduce((acc, chat) => {
         if (chat._id === payload._id) {
-          chatExists = true;
-          return { ...chat, ...payload };
+          chatAdded = true;
+          acc.push({ ...chat, ...payload });
+        } else {
+          acc.push(chat);
         }
-        return chat;
-      });
+        return acc;
+      }, []);
 
-      if (!chatExists) {
-        updatedChats.unshift(payload);
+      if (!chatAdded) {
+        _chats.unshift(payload);
       }
 
-      return { ...state, chats: updatedChats };
+      if (payload._id === state.thisChat) {
+        const { messages } = state;
+
+        return {
+          ...state,
+          chats: _chats,
+          messages: [...messages, payload.lastMessage],
+        };
+      }
+
+      return { ...state, chats: _chats };
     }
 
     default: {

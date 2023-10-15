@@ -27,9 +27,7 @@ const Message = ({ message, user }) => {
             role="img"
           />
         )}
-        {!isUserMessage ? (
-          <span className="timestamp">{formattedTime}</span>
-        ) : null}
+        <span className="timestamp">{formattedTime}</span>
       </div>
     </li>
   );

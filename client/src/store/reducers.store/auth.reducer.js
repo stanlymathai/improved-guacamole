@@ -4,7 +4,7 @@ const initialState = {
   user: {},
   token: '',
   isLoggedIn: false,
-  error: null, // Add an error field for error handling
+  error: null,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -24,7 +24,7 @@ const authReducer = (state = initialState, action) => {
         user: payload.user,
         token: payload.token,
         isLoggedIn: true,
-        error: null, // Clear any previous errors
+        error: null,
       };
 
     case actionTypes.LOGOUT:
@@ -42,8 +42,6 @@ const authReducer = (state = initialState, action) => {
         user: payload,
         error: null,
       };
-
-    // Add error handling here if needed
 
     default:
       return state;
