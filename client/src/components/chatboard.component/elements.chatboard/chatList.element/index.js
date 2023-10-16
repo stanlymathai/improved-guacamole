@@ -1,8 +1,10 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  setPage,
   createChat,
   setThisChat,
+  setMessages,
 } from '../../../../store/actions.store/chat.action';
 
 import chatService from '../../../../services/chat.service';
@@ -21,6 +23,8 @@ const ChatList = () => {
 
   // handler fn's
   const openChat = (chatId) => {
+    dispatch(setPage(1));
+    dispatch(setMessages([]));
     dispatch(setThisChat(chatId));
   };
 

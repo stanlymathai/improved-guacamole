@@ -49,7 +49,6 @@ export const handleTypingStatus = (data) => (dispatch) => {
 };
 
 export const setPage = (page) => (dispatch) => {
-  console.log('page knri', page);
   dispatch({ type: types.SET_PAGE, payload: page });
 };
 
