@@ -66,6 +66,9 @@ COPY --from=build /usr/src/app/node_modules ./node_modules
 # Copy the rest of the application code
 COPY . .
 
+# Remove the unnecessary files 
+RUN rm -rf .env .env.example .gitignore .dockerignore Dockerfile
+
 # Change ownership and permissions for the uploads directory and its content
 RUN chown -R node:node ./uploads && chmod -R 755 ./uploads
 
