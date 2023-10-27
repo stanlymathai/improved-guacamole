@@ -6,7 +6,7 @@ const SocketHandlers = require('./handler.socket');
 const socketServer = (server) => {
   const io = require('socket.io')(server, {
     cors: {
-      origin: 'http://localhost:3000',
+      origin: ['https://social.dev.monitalks.io', 'https://social.stage.monitalks.io'],
       methods: ['GET', 'POST'],
     },
   });
