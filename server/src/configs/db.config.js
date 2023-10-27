@@ -15,7 +15,7 @@ const MONGO_CONN_URL = `mongodb+srv://${db_username}:${db_password}@${db_host}.m
 const RETRY_BASE_INTERVAL = 2000; // 2 seconds base interval for exponential backoff retry
 const MAX_RETRIES = 5; // Max number of retries for connection attempts
 
-async function initialize_connection(attempt = 1) {
+async function establish_connection(attempt = 1) {
   try {
     await mongoose.connect(MONGO_CONN_URL, {
       connectTimeoutMS: db_connection_timeout,
@@ -36,7 +36,7 @@ async function initialize_connection(attempt = 1) {
       let sleep_time = exponential_backoff + jitter;
 
       console.log(`Retrying in ${sleep_time / 1000} seconds...`);
-      setTimeout(() => initialize_connection(attempt + 1), sleep_time);
+      setTimeout(() => establish_connection(attempt + 1), sleep_time);
     } else {
       gracefulShutdown(new Error('Max connection retries reached.'));
     }
@@ -97,4 +97,4 @@ async function handle_shutdown(signal) {
 process.on('SIGINT', handle_shutdown.bind(null, 'SIGINT'));
 process.on('SIGTERM', handle_shutdown.bind(null, 'SIGTERM'));
 
-module.exports = { initialize_connection };
+module.exports = { establish_connection };
