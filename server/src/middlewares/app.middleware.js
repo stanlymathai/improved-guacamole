@@ -1,10 +1,24 @@
 const express = require('express');
-const helmet = require('helmet');
 const cors = require('cors');
 
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX_REQUESTS = 250; // Max number of requests per window
+
+const limiter = rateLimit({
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX_REQUESTS,
+  message: { error: 'Too many requests, please try again later.' },
+  headers: true, // Enables X-RateLimit headers
+});
+
 module.exports = (app) => {
-  app.use(cors());
+  app.disable('x-powered-by');
   app.use(helmet());
+  app.use(cors());
+  app.use(limiter);
   app.use(express.json({ limit: '5mb' }));
   app.use(express.urlencoded({ extended: false }));
 };
