@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to the Instant Messaging service for the TalkMoni Social app! This project ensures secure real-time communication using WebSockets and JWT authentication while integrating AWS S3 for storage. The front-end, powered by React, offers a modern UI with real-time updates, Redux for state management, and comprehensive emoji support.
+Welcome to the Instant Messaging service for the TalkMoni Social app! This project ensures secure real-time communication using WebSockets, EventEmitters (node) and JWT authentication while integrating AWS S3 for storage. The front-end, powered by React, offers a modern UI with real-time updates, Redux for state management, and comprehensive emoji support.
 
 ## Features
 
@@ -49,23 +49,6 @@ Welcome to the Instant Messaging service for the TalkMoni Social app! This proje
 - MongoDB
 - AWS account (for S3 integration)
 
-### Dependencies
-- `@aws-sdk/client-s3`: AWS S3 SDK for JavaScript.
-- `bcrypt`: For password hashing.
-- `cors`: Middleware to enable CORS.
-- `dotenv`: To load environment variables.
-- `express`: Web framework for Node.js.
-- `express-rate-limit`: To limit repeated requests.
-- `helmet`: To secure Express with HTTP headers.
-- `jsonwebtoken`: To implement JWT for authentication.
-- `mongodb`: Official MongoDB driver.
-- `mongoose`: MongoDB object modeling tool.
-- `mongoose-paginate-v2`: Pagination plugin for Mongoose.
-- `multer`: Middleware for handling multipart form data.
-- `socket.io`: Enables real-time bidirectional event-based communication.
-- `uuid`: For the creation of RFC4122 UUIDs.
-
-## Client - Version 0.1.0 (Private)
 
 ### Description
 The client-side provides a rich front-end experience for the TalkMoni Social app with features like emoji support, scalable font icons, and a modern React interface.
