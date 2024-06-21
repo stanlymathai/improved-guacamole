@@ -1,24 +1,53 @@
-# TalkMoni Social Messaging Service
+# Instant Messaging Service
 
-## Server - Version 1.0.0
+## Overview
 
-### Description
-The server component of the TalkMoni Social app acts as the messaging service backend, facilitating API requests and managing real-time communication between users.
+Welcome to the Instant Messaging service for the TalkMoni Social app! This project ensures secure real-time communication using WebSockets and JWT authentication while integrating AWS S3 for storage. The front-end, powered by React, offers a modern UI with real-time updates, Redux for state management, and comprehensive emoji support.
 
-### Main Entry
-index.js
+## Features
 
-### Scripts
-- `test`: Indicates that no test suite is specified for the server component.
+- **Secure Communication**: Leveraging JWT for secure authentication.
+- **Real-Time Updates**: Utilizing WebSockets (via Socket.io) for instant messaging.
+- **Scalable Storage**: AWS S3 integration for media and data storage.
+- **Modern Front-End**: Built with React for a responsive and interactive user experience.
+- **State Management**: Redux for efficient state management.
+- **Emoji Support**: Rich emoji integration for expressive messaging.
 
-### Repository
-- Type: git
-- URL: [social_messaging repository](https://eu-west-2.console.aws.amazon.com/codesuite/codecommit/repositories/social_messaging/browse?region=eu-west-2)
+## Technologies Used
 
-### Keywords
-- TalkMoni
-- Messaging
-- Social
+### Backend
+
+- **Node.js**: JavaScript runtime for building scalable network applications.
+- **Express**: Fast, unopinionated, minimalist web framework for Node.js.
+- **MongoDB**: NoSQL database for storing user data and messages.
+- **Socket.io**: Library for real-time web applications, enabling bi-directional communication.
+- **jsonwebtoken**: For implementing JWT authentication.
+- **AWS SDK**: For interacting with AWS services, specifically S3 for storage.
+- **bcrypt**: For secure password hashing.
+- **dotenv**: For managing environment variables.
+- **Helmet**: For securing Express apps by setting various HTTP headers.
+- **Multer**: For handling multipart/form-data, used for file uploads.
+- **Mongoose**: Elegant MongoDB object modeling for Node.js.
+
+### Frontend
+
+- **React**: JavaScript library for building user interfaces.
+- **Redux**: Predictable state container for JavaScript apps.
+- **Socket.io-client**: Client-side library for Socket.io.
+- **Axios**: Promise-based HTTP client for the browser and Node.js.
+- **Emoji Mart**: Comprehensive emoji picker.
+- **FontAwesome**: Scalable vector icons.
+- **React Router**: Declarative routing for React applications.
+- **Date-fns**: Modern JavaScript date utility library.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js
+- npm or yarn
+- MongoDB
+- AWS account (for S3 integration)
 
 ### Dependencies
 - `@aws-sdk/client-s3`: AWS S3 SDK for JavaScript.
@@ -56,7 +85,7 @@ Defines the compatibility of the client app with different browsers for both dev
 ## Common Information
 
 ### Author
-infinexpartners
+stanly@math.ai
 
 ### License
 ISC
